@@ -36,7 +36,11 @@ contract OfferHandler {
         offerLists[collection][avatarType].length++;
     }
 
-    function _removeOffer(uint256 offerId, address collection, string memory avatarType) internal {
+    function _removeOffer(uint256 offerId, address collection, string memory avatarType)
+        internal
+        isMaker(offerId, collection, avatarType)
+        offerExists(offerId, collection, avatarType)
+    {
         CollectionOffer memory offer = offers[collection][avatarType][offerId];
 
         offers[collection][avatarType][offer.prev].next = offers[collection][avatarType][offerId].next;
@@ -59,11 +63,29 @@ contract OfferHandler {
         _;
     }
 
+    modifier isMaker(uint256 offerId, address collection, string memory avatarType) {
+        require(offers[collection][avatarType][offerId].maker == msg.sender, "OfferHandler: Not the maker of the offer");
+        _;
+    }
+
+    modifier offerExists(uint256 offerId, address collection, string memory avatarType) {
+        require(offers[collection][avatarType][offerId].price != 0, "OfferHandler: Offer does not exist");
+        _;
+    }
+
     function getBestOffer(address collection, string memory avatarType) public view returns (CollectionOffer memory) {
         return offers[collection][avatarType][getBestOfferId(collection, avatarType)];
     }
 
     function getBestOfferId(address collection, string memory avatarType) public view returns (uint256) {
         return offerLists[collection][avatarType].head;
+    }
+
+    function getOffer(address collection, string memory avatarType, uint256 offerId)
+        public
+        view
+        returns (CollectionOffer memory)
+    {
+        return offers[collection][avatarType][offerId];
     }
 }

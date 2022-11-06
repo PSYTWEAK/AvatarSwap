@@ -21,7 +21,7 @@ contract AvatarIdentifier {
         }
     }
 
-    function getCollectionType(address collection, uint256 tokenId) public view returns (string memory) {
+    function getAvatarType(address collection, uint256 tokenId) public view returns (string memory) {
         uint256[] memory ranges = collectionRanges[collection];
         for (uint256 i = 0; i < ranges.length; i++) {
             if (tokenId <= ranges[i]) {
