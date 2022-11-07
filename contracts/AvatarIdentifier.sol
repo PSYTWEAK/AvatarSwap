@@ -2,6 +2,7 @@
 pragma solidity ^0.8.9;
 
 import "hardhat/console.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 // Reddit avatars typically share a contract address with all the avatars made by that artist
 // Example collection A has avatar types Mouse, Cat, Dog. Those types are in a range of Ids
@@ -9,11 +10,11 @@ import "hardhat/console.sol";
 // AvatarIdentifer takes the contract address and Id and finds the token type
 // This is used to find the correct offer list for the avatar being recieved
 
-contract AvatarIdentifier {
+contract AvatarIdentifier is Ownable {
     mapping(address => uint256[]) public collectionRanges;
     mapping(address => mapping(uint256 => string)) public collectionTypes;
 
-    function addCollection(address collection, uint256[] memory ranges, string[] memory types) public {
+    function addCollection(address collection, uint256[] memory ranges, string[] memory types) public onlyOwner {
         require(ranges.length == types.length, "AvatarIdentifier: Ranges and types must be the same length");
         collectionRanges[collection] = ranges;
         for (uint256 i = 0; i < ranges.length; i++) {
