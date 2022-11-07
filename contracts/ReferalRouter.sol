@@ -2,12 +2,13 @@
 pragma solidity ^0.8.9;
 
 import "hardhat/console.sol";
+import "IAvatarSwap.sol";
 
-contract ReferalReceiver {
-    address avatarSwap;
+contract ReferalRouter {
+    IAvatarSwap avatarSwap;
 
     constructor(address _avatarSwap) {
-        avatarSwap = _avatarSwap;
+        avatarSwap = IAvatarSwap(_avatarSwap);
     }
 
     function onERC1155Received(address _operator, address _from, uint256 _id, uint256 _value, bytes calldata _data)
