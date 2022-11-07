@@ -2,7 +2,7 @@
 pragma solidity ^0.8.9;
 
 import "hardhat/console.sol";
-import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
+import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 
 contract TransferAvatars {
     function _payMaker(address to, address collectionAddress, uint256 id, uint256 value) internal {
@@ -11,15 +11,15 @@ contract TransferAvatars {
 
     function _transferAvatar(address from, address to, address collection, uint256 id, uint256 value)
         internal
-        transferCompleted(to, id)
+        transferCompleted(to, collection, id)
     {
         IERC1155(collection).safeTransferFrom(from, to, id, value, "");
     }
 
-    modifier transferCompleted(address to, uint256 id) {
-        uint256 balanceBefore = IERC1155(WETH).balanceOf(to, id);
+    modifier transferCompleted(address to, address collection, uint256 id) {
+        uint256 balanceBefore = IERC1155(collection).balanceOf(to, id);
         _;
-        uint256 balanceAfter = IERC1155(WETH).balanceOf(to, id);
-        require(balanceAfter - balanceBefore == amount, "TransferAvatars: Transfer failed");
+        uint256 balanceAfter = IERC1155(collection).balanceOf(to, id);
+        require(balanceAfter - balanceBefore == 1, "TransferAvatars: Transfer failed");
     }
 }

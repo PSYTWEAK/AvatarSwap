@@ -53,16 +53,13 @@ contract OfferHandler {
     }
 
     modifier correctPosition(CollectionOffer memory collectionOffer, address collection, string memory avatarType) {
-        require(
-            offers[collection][avatarType][collectionOffer.prev].price == 0
-                || offers[collection][avatarType][collectionOffer.prev].price < collectionOffer.price,
-            "OfferHandler: Offer above is not greater than the new offer"
-        );
-        require(
-            offers[collection][avatarType][collectionOffer.next].price == 0
-                || offers[collection][avatarType][collectionOffer.next].price > collectionOffer.price,
-            "OfferHandler: Offer below is not less than the new offer"
-        );
+        if (offerLists[collection][avatarType].length > 0) {
+            CollectionOffer storage next = offers[collection][avatarType][collectionOffer.next];
+            CollectionOffer storage prev = offers[collection][avatarType][collectionOffer.prev];
+            require(next.price > collectionOffer.price, "OfferHandler: Offer below is not less than the new offer");
+            require(prev.price < collectionOffer.price, "OfferHandler: Offer above is not greater than the new offer");
+        }
+
         _;
     }
 

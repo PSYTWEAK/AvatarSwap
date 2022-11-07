@@ -1,18 +1,23 @@
 import { ethers } from "hardhat";
+// @ts-ignore
+import { collectionData } from "./collectionData";
 
 async function main() {
-  const currentTimestampInSeconds = Math.round(Date.now() / 1000);
-  const ONE_YEAR_IN_SECS = 365 * 24 * 60 * 60;
-  const unlockTime = currentTimestampInSeconds + ONE_YEAR_IN_SECS;
+  const AvatarSwap = await ethers.getContractFactory("AvatarSwap");
+  const avatarSwap = await AvatarSwap.deploy();
+  console.log("AvatarSwap deployed to:", avatarSwap.address);
+ 
+  avatarSwap.deployed();
 
-  const lockedAmount = ethers.utils.parseEther("1");
+  // add collections
+  for (let i = 0; i < collectionData.length; i++) {
+      avatarSwap.addCollection(collectionData.collectionAddress, collectionData.ranges, collectionData.avatarTypes)
+  }
 
-  const Lock = await ethers.getContractFactory("Lock");
-  const lock = await Lock.deploy(unlockTime, { value: lockedAmount });
+  console.log("Collections added to AvatarSwap");
 
-  await lock.deployed();
 
-  console.log(`Lock with 1 ETH and unlock timestamp ${unlockTime} deployed to ${lock.address}`);
+
 }
 
 // We recommend this pattern to be able to use async/await everywhere

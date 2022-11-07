@@ -91,7 +91,10 @@ contract AvatarSwap is OfferHandler, AvatarIdentifier, WETHPayments, TransferAva
         return this.onERC1155Received.selector;
     }
 
-    function acceptBestOfferReferral(address _collectionAddress, uint256 _id, uint256 _value) public {
+    function acceptBestOfferReferral(address _collectionAddress, uint256 _id, uint256 _value)
+        public
+        isValidAvatarType(getAvatarType(_collectionAddress, _id))
+    {
         string avatarType = getAvatarType(_collectionAddress, _id);
 
         require(keccak256(abi.encodePacked(avatarType)) != 0x0, "AvatarSwap: Invalid avatar type");
