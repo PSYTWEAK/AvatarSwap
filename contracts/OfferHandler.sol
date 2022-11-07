@@ -41,7 +41,10 @@ contract OfferHandler {
         isMaker(offerId, collection, avatarType)
         offerExists(offerId, collection, avatarType)
     {
-        CollectionOffer memory offer = offers[collection][avatarType][offerId];
+        CollectionOffer storage offer = offers[collection][avatarType][offerId];
+
+        offer.price = 0;
+        offer.maker = address(0);
 
         offers[collection][avatarType][offer.prev].next = offers[collection][avatarType][offerId].next;
         offers[collection][avatarType][offer.next].prev = offers[collection][avatarType][offerId].prev;
