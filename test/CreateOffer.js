@@ -3,30 +3,58 @@ import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 import { expect } from "chai";
 import { ethers } from "hardhat";
 import { testCollectionData } from "./testCollectionData";
+import { fixture } from "./Fixture";
 
-describe("Create Offer", function () {
-  // Deploy AvatarSwap contract
-  async function fixture([owner, addr1, addr2]) {
-    const AvatarSwap = await ethers.getContractFactory("AvatarSwap");
-    const avatarSwap = await AvatarSwap.deploy();
-    await avatarSwap.deployed();
+// this test suite is for the AvatarSwap contract
 
-    // add collections
-    for (let i = 0; i < testCollectionData.length; i++) {
-      avatarSwap.addCollection(
-        testCollectionData.collectionAddress,
-        testCollectionData.ranges,
-        testCollectionData.avatarTypes
-      );
-    }
+describe("Create Offer", async function () {
+  const { avatarSwap, owner, addr1, addr2, erc1155 } = await loadFixture(fixture);
+  it("Should create an offer on Avo Cato", async function () {
+    // create offer
+    await avatarSwap.createOffer(erc1155.address, "Avo Cato", "1000000000000000000",0, 0)
 
-    console.log("Collections added to AvatarSwap");
+    // get offer
+    const offer = await avatarSwap.getOffer(erc1155.address, "Avo Cato", 0);
+    console.log("Offer:", offer);
+    expect(offer).to.have.property("maker", owner);
+    expect(offer).to.have.property("price", "1000000000000000000");
+    expect(offer).to.have.property("next", 0);
+    expect(offer).to.have.property("prev", 0);
+  })
+  it("Should create a second offer on Avo Cato", async function () {
+    // create offer
+    await avatarSwap.createOffer(erc1155.address, "Avo Cato", "2000000000000000000",0, 0)
 
-    return { avatarSwap, owner, addr1, addr2 };
-  }
+    // get offer
+    const offer = await avatarSwap.getOffer(erc1155.address, "Avo Cato", 1);
+    console.log("Offer:", offer);
+    expect(offer).to.have.property("maker", owner);
+    expect(offer).to.have.property("price", "2000000000000000000");
+    expect(offer).to.have.property("next", 0);
+    expect(offer).to.have.property("prev", 0);
+  })
+  it("Should create a third offer on Avo Cato", async function () {
+    // create offer
+    await avatarSwap.createOffer(erc1155.address, "Avo Cato", "3000000000000000000",0, 0)
 
-  it("Should create an offer", async function () {
-    const { avatarSwap, owner, addr1, addr2 } = await loadFixture(fixture);
+    // get offer
+    const offer = await avatarSwap.getOffer(erc1155.address, "Avo Cato", 2);
+    console.log("Offer:", offer);
+    expect(offer).to.have.property("maker", owner);
+    expect(offer).to.have.property("price", "3000000000000000000");
+    expect(offer).to.have.property("next", 0);
+    expect(offer).to.have.property("prev", 0);
+  })
+  it("Should create a fourth offer but on Mouse au Chocolat", async function () {
+    // create offer
+    await avatarSwap.createOffer(erc1155.address, "Mouse au Chocolat", "4000000000000000000",0, 0)
 
+    // get offer
+    const offer = await avatarSwap.getOffer(erc1155.address, "Mouse au Chocolat", 0);
+    console.log("Offer:", offer);
+    expect(offer).to.have.property("maker", owner);
+    expect(offer).to.have.property("price", "4000000000000000000");
+    expect(offer).to.have.property("next", 0);
+    expect(offer).to.have.property("prev", 0);
   })
 });

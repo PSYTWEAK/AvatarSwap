@@ -12,15 +12,17 @@ import "./ReferalRouter.sol";
 
 contract ReferrerManagement {
     mapping(address => uint256) public referalCode;
-    mapping(uint256 => address) public referalReceiver;
+    mapping(uint256 => address) public referalRouter;
     mapping(address => address) public referrer;
 
     function createReferal() external {
-        uint256 _referalCode = getReferalCode(msg.sender);
-        require(referalCode[msg.sender] == 0, "ReferrerManagement: This account already has a referral code");
-        referalCode[msg.sender] = _referalCode;
-
         ReferalRouter _referalRouter = new ReferalRouter (address(this));
+
+        uint256 _referalCode = getReferalCode(msg.sender);
+
+        require(referalCode[msg.sender] == 0, "ReferrerManagement: This account already has a referal code");
+
+        referalCode[msg.sender] = _referalCode;
         referalRouter[_referalCode] = address(_referalRouter);
         referrer[address(_referalRouter)] = msg.sender;
     }
@@ -30,8 +32,8 @@ contract ReferrerManagement {
         return number;
     }
 
-    function getReferalReceiver(uint256 _referalCode) external view returns (address) {
-        return referalReceiver[_referalCode];
+    function getReferalRouter(uint256 _referalCode) external view returns (address) {
+        return referalRouter[_referalCode];
     }
 
     function getReferrer(address _address) external view returns (address) {

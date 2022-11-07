@@ -17,6 +17,8 @@ contract OfferHandler {
         uint256 length;
     }
 
+    uint256 offerId = 0;
+
     // Mapping the contract address and the token type to a list of offers
     // avatars share the same contract address but have different types
     mapping(address => mapping(string => mapping(uint256 => CollectionOffer))) public offers;
@@ -26,14 +28,27 @@ contract OfferHandler {
         internal
         correctPosition(collectionOffer, collection, avatarType)
     {
-        uint256 newOfferId = offerLists[collection][avatarType].length;
-
-        offers[collection][avatarType][newOfferId] = collectionOffer;
-
-        offers[collection][avatarType][collectionOffer.prev].next = newOfferId;
-        offers[collection][avatarType][collectionOffer.next].prev = newOfferId;
-
+        uint256 newOfferId = offerId;
+        // if the offer list is empty, set the head and tail to the new offer id
+        if (offerLists[collection][avatarType].length == 0) {
+            offerLists[collection][avatarType].head = newOfferId;
+            offerLists[collection][avatarType].tail = newOfferId;
+        } else {
+            // if the offer list is not empty, set the next of the offer below to the new offer id
+            // set the prev of the offer above to the new offer id
+            // if the offer above is 0, set the head to the new offer id
+            // if the offer below is 0, set the tail to the new offer id
+            offers[collection][avatarType][collectionOffer.prev].next = newOfferId;
+            offers[collection][avatarType][collectionOffer.next].prev = newOfferId;
+            if (collectionOffer.prev == 0) {
+                offerLists[collection][avatarType].head = newOfferId;
+            }
+            if (collectionOffer.next == 0) {
+                offerLists[collection][avatarType].tail = newOfferId;
+            }
+        }
         offerLists[collection][avatarType].length++;
+        offerId++;
     }
 
     function _removeOffer(uint256 offerId, address collection, string memory avatarType)
@@ -42,12 +57,21 @@ contract OfferHandler {
         offerExists(offerId, collection, avatarType)
     {
         CollectionOffer storage offer = offers[collection][avatarType][offerId];
+        // if the offer is the head, set the head to the next offer
+        // if the offer is the tail, set the tail to the prev offer
+        // if the offer is not the head or tail, set the next of the prev offer to the next offer
+        // and set the prev of the next offer to the prev offer
+        if (offerId == offerLists[collection][avatarType].head) {
+            offerLists[collection][avatarType].head = offer.next;
+        } else if (offerId == offerLists[collection][avatarType].tail) {
+            offerLists[collection][avatarType].tail = offer.prev;
+        } else {
+            offers[collection][avatarType][offer.prev].next = offer.next;
+            offers[collection][avatarType][offer.next].prev = offer.prev;
+        }
 
         offer.price = 0;
         offer.maker = address(0);
-
-        offers[collection][avatarType][offer.prev].next = offers[collection][avatarType][offerId].next;
-        offers[collection][avatarType][offer.next].prev = offers[collection][avatarType][offerId].prev;
 
         offerLists[collection][avatarType].length--;
     }
