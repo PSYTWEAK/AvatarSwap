@@ -5,6 +5,7 @@ import "hardhat/console.sol";
 import "./OfferHandler.sol";
 import "./AvatarIdentifier.sol";
 import "./WETHPayments.sol";
+import "./TransferAvatars.sol";
 
 contract AvatarSwap is OfferHandler, AvatarIdentifier, WETHPayments, TransferAvatars {
     // Event emitted when a new offer is created
@@ -57,7 +58,7 @@ contract AvatarSwap is OfferHandler, AvatarIdentifier, WETHPayments, TransferAva
         view
         returns (bytes4)
     {
-        acceptBestOffer(msg.sender, _from, _id, _value);
+        _acceptBestOffer(msg.sender, _from, _id, _value, false);
 
         return this.onERC1155Received.selector;
     }
@@ -70,20 +71,24 @@ contract AvatarSwap is OfferHandler, AvatarIdentifier, WETHPayments, TransferAva
         return this.onERC1155BatchReceived.selector;
     }
 
-    function _acceptBestOffer(address _collectionAddress, address _sender, uint256 _id, uint256 _value)
+    function _acceptBestOffer(address _collectionAddress, address _sender, uint256 _id, uint256 _value, bool _referred)
         internal
         isValidAvatarType(getAvatarType(_collectionAddress, _id))
     {
         string avatarType = getAvatarType(_collectionAddress, _id);
-
-        require(keccak256(abi.encodePacked(avatarType)) != 0x0, "AvatarSwap: Invalid avatar type");
 
         CollectionOffer memory offer = getBestOffer(_collectionAddress, avatarType);
 
         uint256 offerId = getBestOfferId(collectionAddress, avatarType);
 
         _removeOffer(offerId, _collectionAddress, avatarType);
-        _paySeller(_sender, offer.price);
+
+        if (_referred) {
+            _payReferalSeller(_sender, offer.price);
+        } else {
+            _paySeller(_sender, offer.price);
+        }
+
         _payMaker(offer.maker, _collectionAddress, _id, _value);
 
         emit OfferAccepted(offer.maker, _collectionAddress, avatarType, offer.price);
@@ -91,21 +96,8 @@ contract AvatarSwap is OfferHandler, AvatarIdentifier, WETHPayments, TransferAva
         return this.onERC1155Received.selector;
     }
 
-    function acceptBestOfferReferral(address _collectionAddress, uint256 _id, uint256 _value)
-        public
-        isValidAvatarType(getAvatarType(_collectionAddress, _id))
-    {
-        string avatarType = getAvatarType(_collectionAddress, _id);
-
-        require(keccak256(abi.encodePacked(avatarType)) != 0x0, "AvatarSwap: Invalid avatar type");
-
-        CollectionOffer memory offer = getBestOffer(_collectionAddress, avatarType);
-
-        uint256 offerId = getBestOfferId(collectionAddress, avatarType);
-
-        _removeOffer(offerId, _collectionAddress, avatarType);
-        _payReferalSeller(_sender, offer.price);
-        _payMaker(offer.maker, _collectionAddress, _id, _value);
+    function acceptBestOfferReferral(address collectionAddress, uint256 id, uint256 value) public {
+        _acceptBestOffer(collectionAddress, msg.sender, id, value, true);
 
         emit OfferAccepted(offer.maker, _collectionAddress, avatarType, offer.price);
     }

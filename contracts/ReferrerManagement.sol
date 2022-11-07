@@ -32,11 +32,12 @@ contract ReferrerManagement {
         return number;
     }
 
-    function getReferalRouter(uint256 _referalCode) external view returns (address) {
+    function getReferalRouter(uint256 _referalCode) public view returns (address) {
+        require(referalRouter[_referalCode] != address(0), "ReferrerManagement: This referal Router does not exist");
         return referalRouter[_referalCode];
     }
 
-    function getReferrer(address _address) external view returns (address) {
+    function getReferrer(address _address) public view returns (address) {
         require(referrer[_address] != address(0), "ReferrerManagement: This address is not a referrer");
         return referrer[_address];
     }
