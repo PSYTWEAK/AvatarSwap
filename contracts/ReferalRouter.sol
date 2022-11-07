@@ -3,6 +3,7 @@ pragma solidity ^0.8.9;
 
 import "hardhat/console.sol";
 import "IAvatarSwap.sol";
+import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 
 contract ReferalRouter {
     IAvatarSwap avatarSwap;
@@ -16,6 +17,10 @@ contract ReferalRouter {
         view
         returns (bytes4)
     {
+        IERC1155(msg.sender).approve(address(avatarSwap), _id);
+
+        avatarSwap.acceptBestOfferReferral(msg.sender, _id, _value);
+
         return this.onERC1155Received.selector;
     }
 
