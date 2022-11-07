@@ -1,8 +1,8 @@
-# Sample Hardhat Project
+# AvatarSwap
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a script that deploys that contract.
+Welcome to our NFT marketplace for avatars!
 
-Try running some of the following tasks:
+This is an easy place to trade your reddit avatars. We've abstracted away a lot of the complexity of using a traditional NFT marketplace, to make it accessible for people who are new to web3.
 
 ```shell
 npx hardhat help
@@ -11,4 +11,3 @@ REPORT_GAS=true npx hardhat test
 npx hardhat node
 npx hardhat run scripts/deploy.ts
 ```
-# AvatarSwap
