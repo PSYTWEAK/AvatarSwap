@@ -20,9 +20,9 @@ contract ReferrerManagement {
         require(referalCode[msg.sender] == 0, "ReferrerManagement: This account already has a referral code");
         referalCode[msg.sender] = _referalCode;
 
-        ReferalReceiver _referalReceiver = new ReferalReceiver(address(this));
-        referalReceiver[_referalCode] = address(_referalReceiver);
-        referrer[address(_referalReceiver)] = msg.sender;
+        ReferalRouter _referalRouter = new ReferalRouter (address(this));
+        referalRouter[_referalCode] = address(_referalRouter);
+        referrer[address(_referalRouter)] = msg.sender;
     }
 
     function getReferalCode(address _address) public pure returns (uint256) {
@@ -35,6 +35,7 @@ contract ReferrerManagement {
     }
 
     function getReferrer(address _address) external view returns (address) {
+        require(referrer[_address] != address(0), "ReferrerManagement: This address is not a referrer");
         return referrer[_address];
     }
 }

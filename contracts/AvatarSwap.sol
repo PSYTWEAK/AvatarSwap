@@ -91,7 +91,7 @@ contract AvatarSwap is OfferHandler, AvatarIdentifier, WETHPayments, TransferAva
         return this.onERC1155Received.selector;
     }
 
-    function receiveFromReferral(address _collectionAddress, uint256 _id, uint256 _value) public  {
+    function acceptBestOfferReferral(address _collectionAddress, uint256 _id, uint256 _value) public {
         string avatarType = getAvatarType(_collectionAddress, _id);
 
         require(keccak256(abi.encodePacked(avatarType)) != 0x0, "AvatarSwap: Invalid avatar type");
@@ -101,7 +101,7 @@ contract AvatarSwap is OfferHandler, AvatarIdentifier, WETHPayments, TransferAva
         uint256 offerId = getBestOfferId(collectionAddress, avatarType);
 
         _removeOffer(offerId, _collectionAddress, avatarType);
-        _payReferalSeller(getReferrer(msg.),_sender, offer.price);
+        _payReferalSeller(_sender, offer.price);
         _payMaker(offer.maker, _collectionAddress, _id, _value);
 
         emit OfferAccepted(offer.maker, _collectionAddress, avatarType, offer.price);
@@ -111,5 +111,4 @@ contract AvatarSwap is OfferHandler, AvatarIdentifier, WETHPayments, TransferAva
         require(keccak256(abi.encodePacked(avatarType)) != 0x0, "AvatarSwap: Invalid avatar type");
         _;
     }
-
 }

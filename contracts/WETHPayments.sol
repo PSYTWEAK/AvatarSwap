@@ -10,14 +10,17 @@ contract WETHPayments is ReferrerManagement {
     address immutable feeWallet = 0xe51B242853126C4DaB6a08FddE0CAEa122EB9Dd7;
 
     function _paySeller(address to, uint256 price) internal {
-        _transferWETH(to, price);
+        uint basicFee = price / 25;
+        uint256 newPrice = price - referrerFee;
+        _transferWETH(feeWallet, basicFee);
+        _transferWETH(to, newPrice);
     }
 
-    function _payReferalSeller(address referrer, address to, uint256 price) internal {
+    function _payReferalSeller(address referrer, address to, uint256 price) internal isReferrer) {
         uint256 referrerFee = price / 50;
         uint256 newPrice = price - referrerFee;
 
-        _transferWETH(to, referrer);
+        _transferWETH(referrer, referrerFee);
         _transferWETH(to, newPrice);
     }
 
@@ -34,5 +37,10 @@ contract WETHPayments is ReferrerManagement {
         _;
         uint256 balanceAfter = IERC20(WETH).balanceOf(to);
         require(balanceAfter - balanceBefore == amount, "WrappedETH: Transfer failed");
+    }
+
+    modifier isReferrer(address referrer) {
+        require(getReferrer(referrer) != address(0), "WETHPayments: This address is not a referrer");
+        _;
     }
 }
