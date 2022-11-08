@@ -28,27 +28,44 @@ contract OfferHandler {
         internal
         correctPosition(collectionOffer, collection, avatarType)
     {
-        uint256 newOfferId = offerId;
+        console.log("Adding offer");
+        offerId++;
+        console.log("new offer ID is %s", offerId);
         // if the offer list is empty, set the head and tail to the new offer id
         if (offerLists[collection][avatarType].length == 0) {
-            offerLists[collection][avatarType].head = newOfferId;
-            offerLists[collection][avatarType].tail = newOfferId;
+            offerLists[collection][avatarType].head = offerId;
+            offerLists[collection][avatarType].tail = offerId;
         } else {
-            // if the offer list is not empty, set the next of the offer below to the new offer id
-            // set the prev of the offer above to the new offer id
-            // if the offer above is 0, set the head to the new offer id
-            // if the offer below is 0, set the tail to the new offer id
-            offers[collection][avatarType][collectionOffer.prev].next = newOfferId;
-            offers[collection][avatarType][collectionOffer.next].prev = newOfferId;
-            if (collectionOffer.prev == 0) {
-                offerLists[collection][avatarType].head = newOfferId;
+
+            if(collectionOffer.next != 0) {
+                // if the collectionOffer.next is not 0 then the offer next is checked to make sure it is higher
+                CollectionOffer storage next = offers[collection][avatarType][collectionOffer.next];
+                require(next.price > collectionOffer.price, "OfferHandler: Offer above is not above the new offer");    
+                next.prev = offerId;
+            } else {
+                // if the collectionOffer.next is 0 then the offer is the highest offer and the head is updated
+                CollectionOffer storage head = offers[collection][avatarType][offerLists[collection][avatarType].head];
+                require(head.price < collectionOffer.price, "OfferHandler: Offer is not the head");   
+                head.next = offerId;
+                // set new head
+                offerLists[collection][avatarType].head = offerId;
             }
-            if (collectionOffer.next == 0) {
-                offerLists[collection][avatarType].tail = newOfferId;
+            if(collectionOffer.prev != 0) {
+                // if the collectionOffer.prev is not 0 then the offer prev is checked to make sure it is lower
+                CollectionOffer storage prev = offers[collection][avatarType][collectionOffer.prev];
+                require(prev.price < collectionOffer.price, "OfferHandler: Offer below is not below the new offer");  
+                prev.next = offerId;  
+            } else {
+                // if the collectionOffer.prev is 0 then the offer is the lowest offer and the tail is updated
+                CollectionOffer storage tail = offers[collection][avatarType][offerLists[collection][avatarType].tail];
+                require(tail.price > collectionOffer.price, "OfferHandler: Offer is not the tail");   
+                tail.prev = offerId;
+                // set new tail
+                offerLists[collection][avatarType].tail = offerId;
             }
         }
+        offers[collection][avatarType][offerId] = collectionOffer;
         offerLists[collection][avatarType].length++;
-        offerId++;
     }
 
     function _removeOffer(uint256 offerId, address collection, string memory avatarType)
@@ -77,11 +94,14 @@ contract OfferHandler {
     }
 
     modifier correctPosition(CollectionOffer memory collectionOffer, address collection, string memory avatarType) {
+        console.log("Checking position");
         if (offerLists[collection][avatarType].length > 0) {
+            CollectionOffer storage head = offers[collection][avatarType][offerLists[collection][avatarType].head];
+            CollectionOffer storage tail = offers[collection][avatarType][offerLists[collection][avatarType].tail];
             CollectionOffer storage next = offers[collection][avatarType][collectionOffer.next];
             CollectionOffer storage prev = offers[collection][avatarType][collectionOffer.prev];
-            require(next.price > collectionOffer.price, "OfferHandler: Offer below is not less than the new offer");
-            require(prev.price < collectionOffer.price, "OfferHandler: Offer above is not greater than the new offer");
+            require(next.price > collectionOffer.price || head.price < collectionOffer.price, "OfferHandler: Offer below is not less than the new offer");
+            require(prev.price < collectionOffer.price || tail.price > collectionOffer.price, "OfferHandler: Offer above is not greater than the new offer");
         }
 
         _;

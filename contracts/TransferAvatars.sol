@@ -11,12 +11,12 @@ contract TransferAvatars {
 
     function _transferAvatar(address from, address to, address collection, uint256 id, uint256 value)
         internal
-        transferCompleted(to, collection, id)
+        transferAvatarCompleted(to, collection, id)
     {
         IERC1155(collection).safeTransferFrom(from, to, id, value, "");
     }
 
-    modifier transferCompleted(address to, address collection, uint256 id) {
+    modifier transferAvatarCompleted(address to, address collection, uint256 id) {
         uint256 balanceBefore = IERC1155(collection).balanceOf(to, id);
         _;
         uint256 balanceAfter = IERC1155(collection).balanceOf(to, id);

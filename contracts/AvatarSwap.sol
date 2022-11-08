@@ -55,7 +55,6 @@ contract AvatarSwap is OfferHandler, AvatarIdentifier, WETHPayments, TransferAva
 
     function onERC1155Received(address _operator, address _from, uint256 _id, uint256 _value, bytes calldata _data)
         public
-        view
         returns (bytes4)
     {
         _acceptBestOffer(msg.sender, _from, _id, _value, false);
@@ -75,11 +74,11 @@ contract AvatarSwap is OfferHandler, AvatarIdentifier, WETHPayments, TransferAva
         internal
         isValidAvatarType(getAvatarType(_collectionAddress, _id))
     {
-        string avatarType = getAvatarType(_collectionAddress, _id);
+        string memory avatarType = getAvatarType(_collectionAddress, _id);
 
         CollectionOffer memory offer = getBestOffer(_collectionAddress, avatarType);
 
-        uint256 offerId = getBestOfferId(collectionAddress, avatarType);
+        uint256 offerId = getBestOfferId(_collectionAddress, avatarType);
 
         _removeOffer(offerId, _collectionAddress, avatarType);
 
@@ -92,14 +91,10 @@ contract AvatarSwap is OfferHandler, AvatarIdentifier, WETHPayments, TransferAva
         _payMaker(offer.maker, _collectionAddress, _id, _value);
 
         emit OfferAccepted(offer.maker, _collectionAddress, avatarType, offer.price);
-
-        return this.onERC1155Received.selector;
     }
 
     function acceptBestOfferReferral(address collectionAddress, uint256 id, uint256 value) public {
         _acceptBestOffer(collectionAddress, msg.sender, id, value, true);
-
-        emit OfferAccepted(offer.maker, _collectionAddress, avatarType, offer.price);
     }
 
     modifier isValidAvatarType(string memory avatarType) {
