@@ -8,6 +8,7 @@ import "./WETHPayments.sol";
 import "./TransferAvatars.sol";
 
 contract AvatarSwap is OfferHandler, AvatarIdentifier, WETHPayments, TransferAvatars {
+
     // Event emitted when a new offer is created
     event OfferCreated(
         address indexed maker, address indexed contractAddress, string indexed avatarType, uint256 price
@@ -19,6 +20,8 @@ contract AvatarSwap is OfferHandler, AvatarIdentifier, WETHPayments, TransferAva
     event OfferAccepted(
         address indexed maker, address indexed contractAddress, string indexed avatarType, uint256 price
     );
+
+    constructor(address _weth) WETHPayments(_weth) public {}
 
     // Function to create a new offer, parameters need to include the offer above and below the new offer
     // The offer above and below are used to determine the position of the new offer in the list
@@ -33,7 +36,7 @@ contract AvatarSwap is OfferHandler, AvatarIdentifier, WETHPayments, TransferAva
         _transferWETHFrom(msg.sender, address(this), price);
 
         _addOffer(
-            CollectionOffer({maker: msg.sender, price: price, next: offerBelow, prev: offerAbove}),
+            CollectionOffer({maker: msg.sender, price: price, above: offerAbove, below: offerBelow}),
             collectionAddress,
             avatarType
         );
@@ -42,9 +45,10 @@ contract AvatarSwap is OfferHandler, AvatarIdentifier, WETHPayments, TransferAva
     }
 
     function removeOffer(address collectionAddress, string memory avatarType, uint256 offerId) public {
-        _removeOffer(offerId, collectionAddress, avatarType);
 
         uint256 refund = getOffer(collectionAddress, avatarType, offerId).price;
+
+        _removeOffer(offerId, collectionAddress, avatarType);
 
         _transferWETH(msg.sender, refund);
 
@@ -93,8 +97,8 @@ contract AvatarSwap is OfferHandler, AvatarIdentifier, WETHPayments, TransferAva
         emit OfferAccepted(offer.maker, _collectionAddress, avatarType, offer.price);
     }
 
-    function acceptBestOfferReferral(address collectionAddress, uint256 id, uint256 value) public {
-        _acceptBestOffer(collectionAddress, msg.sender, id, value, true);
+    function acceptBestOfferReferral(address collectionAddress, address sender, uint256 id, uint256 value) public {
+        _acceptBestOffer(collectionAddress, sender, id, value, true);
     }
 
     modifier isValidAvatarType(string memory avatarType) {

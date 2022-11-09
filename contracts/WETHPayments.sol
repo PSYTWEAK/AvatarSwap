@@ -6,8 +6,12 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./ReferrerManagement.sol";
 
 contract WETHPayments is ReferrerManagement {
-    address immutable WETH = 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512;
+    address public WETH;
     address immutable feeWallet = 0xe51B242853126C4DaB6a08FddE0CAEa122EB9Dd7;
+
+    constructor(address _weth) {
+        WETH = _weth;
+    }
 
     function _paySeller(address to, uint256 price) internal {
         uint256 basicFee = price / 25;
