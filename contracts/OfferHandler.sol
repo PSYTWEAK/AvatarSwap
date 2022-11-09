@@ -67,9 +67,9 @@ contract OfferHandler {
     }
 
     function _removeOffer(uint256 offerId, address collection, string memory avatarType)
-        internal
-        isMaker(offerId, collection, avatarType)
+        internal   
         offerExists(offerId, collection, avatarType)
+        isMaker(offerId, collection, avatarType)
     {
         CollectionOffer storage offer = offers[collection][avatarType][offerId];
         // if the offer is the head, set the head to the above offer
