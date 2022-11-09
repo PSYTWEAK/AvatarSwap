@@ -13,7 +13,7 @@ const testCollectionData = [
   },
 ];
 
-describe("On ERC1155 Received", function () {
+describe("Accept Best Offer", function () {
   // @ts-ignore
   let avatarSwap: any, owner: any, addr1: any, addr2: any, testAvatar: any, testWETH: any;
 
@@ -50,7 +50,8 @@ describe("On ERC1155 Received", function () {
 
     // Mint ERC1155 tokens
     // @ts-ignore
-    await testAvatar.mint(owner.address, 0, 40);
+    await testAvatar.mint(owner.address, 1, 10);
+    await testAvatar.mint(owner.address, 2, 40);
 
     await avatarSwap.addCollection(
       testAvatar.address,
@@ -66,7 +67,7 @@ describe("On ERC1155 Received", function () {
   });
 
   it("Should accept best offer when testAvatar is transfered to AvatarSwap", async function () {
-    // @ts-ignore
-    await testAvatar.connect(owner).safeTransferFrom(owner.address, avatarSwap.address, 0, 1, "0x");
+    // transfer id 1 of testAvatar to AvatarSwap
+    await testAvatar.connect(owner).safeTransferFrom(owner.address, avatarSwap.address, 1, 1, "0x");
   });
 });

@@ -44,7 +44,9 @@ contract AvatarSwap is OfferHandler, AvatarIdentifier, WETHPayments, TransferAva
         emit OfferCreated(msg.sender, collectionAddress, avatarType, price);
     }
 
-    function removeOffer(address collectionAddress, string memory avatarType, uint256 offerId) public {
+    function removeOffer(address collectionAddress, string memory avatarType, uint256 offerId) 
+        public         
+        isMaker(offerId, collectionAddress, avatarType) {
 
         uint256 refund = getOffer(collectionAddress, avatarType, offerId).price;
 
@@ -61,7 +63,7 @@ contract AvatarSwap is OfferHandler, AvatarIdentifier, WETHPayments, TransferAva
         public
         returns (bytes4)
     {
-        _acceptBestOffer(msg.sender, _from, _id, _value, false);
+        //_acceptBestOffer(msg.sender, _from, _id, _value, false);
 
         return this.onERC1155Received.selector;
     }

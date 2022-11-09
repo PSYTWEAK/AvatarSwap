@@ -105,12 +105,12 @@ describe("Remove Offer", function () {
     expect(balanceAfter).to.equal(balanceBefore.add(200000));
   });
   it("Should fail to remove an offerid 1 again in Avo Cato", async function () {
-    await expect(avatarSwap.removeOffer(testAvatar.address, "Avo Cato", 3)).to.be.revertedWith("OfferHandler: Offer does not exist");
+    await expect(avatarSwap.removeOffer(testAvatar.address, "Avo Cato", 3)).to.be.revertedWith("OfferHandler: Not the maker of the offer");
   });
   it("Should fail to remove an offerid 2 again in Avo Cato", async function () {
-    await expect(avatarSwap.removeOffer(testAvatar.address, "Avo Cato", 3)).to.be.revertedWith("OfferHandler: Offer does not exist");
+    await expect(avatarSwap.removeOffer(testAvatar.address, "Avo Cato", 3)).to.be.revertedWith("OfferHandler: Not the maker of the offer");
   });
   it("Should fail to remove an offerid 3 again in Avo Cato", async function () {
-    await expect(avatarSwap.removeOffer(testAvatar.address, "Avo Cato", 3)).to.be.revertedWith("OfferHandler: Offer does not exist");
+    await expect(avatarSwap.removeOffer(testAvatar.address, "Avo Cato", 3)).to.be.revertedWith("OfferHandler: Not the maker of the offer");
   });
 });
