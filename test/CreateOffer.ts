@@ -26,28 +26,21 @@ describe("Create Offer", function () {
     const TestWETH = await ethers.getContractFactory("TestERC20");
     testWETH = await TestWETH.deploy();
     await testWETH.deployed();
-    console.log("Deployed TestWETH contract to:", testWETH.address);
 
     // @ts-ignore
     const AvatarSwap = await ethers.getContractFactory("AvatarSwap");
     avatarSwap = await AvatarSwap.deploy(testWETH.address);
     await avatarSwap.deployed();
 
-    console.log("Deployed AvatarSwap contract to:", avatarSwap.address);
-
     // mint tokens to addr1
     await testWETH.mint(addr1.address, "1000000000000000000000");
     // mint tokens to addr2
     await testWETH.mint(addr2.address, "1000000000000000000000");
 
-    console.log("Minted 1000 tokens to addr1 and addr2");
-
     // Approve AvatarSwap contract to spend tokens
     await testWETH.connect(addr1).approve(avatarSwap.address, "10000000000000000000000");
     await testWETH.connect(addr2).approve(avatarSwap.address, "10000000000000000000000");
     await testWETH.connect(owner).approve(avatarSwap.address, "10000000000000000000000");
-
-    console.log("Approved AvatarSwap contract to spend tokens");
 
     // Deploy ERC721 contract
     const TestAvatar = await ethers.getContractFactory("TestAvatar");
@@ -55,13 +48,9 @@ describe("Create Offer", function () {
     testAvatar = await TestAvatar.deploy();
     await testAvatar.deployed();
 
-    console.log("Deployed ERC1155 contract to:", testAvatar.address);
-
     // Mint ERC1155 tokens
     // @ts-ignore
     await testAvatar.mint(owner.address, 0, 40);
-
-    console.log("Minted ERC1155 tokens to:", owner.address);
 
     await avatarSwap.addCollection(
       testAvatar.address,
@@ -70,8 +59,6 @@ describe("Create Offer", function () {
       // @ts-ignore
       testCollectionData[0].avatarTypes
     );
-
-    console.log("Collections added to AvatarSwap");
   });
 
   it("Should create an offer on Avo Cato", async function () {
@@ -110,18 +97,25 @@ describe("Create Offer", function () {
     expect(offer.above).to.equal("2");
     expect(offer.below).to.equal("1");
   });
+  it("Should fail to create offer with incorrect above", async function () {
+    await expect(avatarSwap.createOffer(testAvatar.address, "Avo Cato", "10000000000000000", 3, 0)).to.be.revertedWith("OfferHandler: Incorrect position, offer below does not match the below offer of the offer above");
+  });
+  it("Should fail to create offer with incorrect above", async function () {
+    await expect(avatarSwap.createOffer(testAvatar.address, "Avo Cato", "1600000000000000000", 2, 1)).to.be.revertedWith("OfferHandler: Incorrect position, offer below does not match the below offer of the offer above");
+  });
   it("Should create a fourth offer on Avo Cato which is the lowest offer yet", async function () {
     // create offer
-    await avatarSwap.createOffer(testAvatar.address, "Avo Cato", "10000000000000000", 3, 0);
+    await avatarSwap.createOffer(testAvatar.address, "Avo Cato", "1000000000000000", 1, 0);
 
     // get offer
     const offer = await avatarSwap.getOffer(testAvatar.address, "Avo Cato", 4);
 
     expect(offer.maker).to.equal(owner.address);
-    expect(offer.price).to.equal("10000000000000000");
-    expect(offer.above).to.equal("3");
+    expect(offer.price).to.equal("1000000000000000");
+    expect(offer.above).to.equal("1");
     expect(offer.below).to.equal("0");
   });
+
   it("Should create first offer on Mouse au Chocolat", async function () {
     // create offer
     await avatarSwap.createOffer(testAvatar.address, "Mouse au Chocolat", "1000000000000000000", 0, 0);

@@ -32,14 +32,7 @@ describe("Accept Best Offer", function () {
     avatarSwap = await AvatarSwap.deploy(testWETH.address);
     await avatarSwap.deployed();
 
-    // mint tokens to addr1
-    await testWETH.mint(addr1.address, "1000000000000000000000");
-    // mint tokens to addr2
-    await testWETH.mint(addr2.address, "1000000000000000000000");
-
     // Approve AvatarSwap contract to spend tokens
-    await testWETH.connect(addr1).approve(avatarSwap.address, "10000000000000000000000");
-    await testWETH.connect(addr2).approve(avatarSwap.address, "10000000000000000000000");
     await testWETH.connect(owner).approve(avatarSwap.address, "10000000000000000000000");
 
     // Deploy ERC721 contract
@@ -50,8 +43,8 @@ describe("Accept Best Offer", function () {
 
     // Mint ERC1155 tokens
     // @ts-ignore
-    await testAvatar.mint(owner.address, 1, 10);
-    await testAvatar.mint(owner.address, 2, 40);
+    await testAvatar.mint(addr1.address, 1, 1);
+    await testAvatar.mint(addr1.address, 2, 1);
 
     await avatarSwap.addCollection(
       testAvatar.address,
@@ -63,11 +56,26 @@ describe("Accept Best Offer", function () {
 
     await avatarSwap.createOffer(testAvatar.address, "Avo Cato", "100000", 0, 0);
     await avatarSwap.createOffer(testAvatar.address, "Avo Cato", "150000", 0, 1);
-    await avatarSwap.createOffer(testAvatar.address, "Avo Cato", "200000", 0, 1);
+    await avatarSwap.createOffer(testAvatar.address, "Avo Cato", "200000", 0, 2);
   });
 
   it("Should accept best offer when testAvatar is transfered to AvatarSwap", async function () {
-    // transfer id 1 of testAvatar to AvatarSwap
-    await testAvatar.connect(owner).safeTransferFrom(owner.address, avatarSwap.address, 1, 1, "0x");
+    let balanceBefore = await testWETH.balanceOf(addr1.address);
+    // transfer id 2 of testAvatar to AvatarSwap
+    await testAvatar.connect(addr1).safeTransferFrom(addr1.address, avatarSwap.address, 1, 1, "0x");
+    let balanceAfter = await testWETH.balanceOf(addr1.address);
+    let expectedBalanceIncrease = 200000 - 200000 / 25;
+
+    expect(balanceAfter).to.equal(balanceBefore.add(expectedBalanceIncrease.toString()));
+  });
+
+  it("Should accept best offer when testAvatar is transfered to AvatarSwap", async function () {
+    let balanceBefore = await testWETH.balanceOf(addr1.address);
+    // transfer id 2 of testAvatar to AvatarSwap
+    await testAvatar.connect(addr1).safeTransferFrom(addr1.address, avatarSwap.address, 2, 1, "0x");
+    let balanceAfter = await testWETH.balanceOf(addr1.address);
+    let expectedBalanceIncrease = 150000 - 150000 / 25;
+
+    expect(balanceAfter).to.equal(balanceBefore.add(expectedBalanceIncrease.toString()));
   });
 });

@@ -63,7 +63,7 @@ contract AvatarSwap is OfferHandler, AvatarIdentifier, WETHPayments, TransferAva
         public
         returns (bytes4)
     {
-        //_acceptBestOffer(msg.sender, _from, _id, _value, false);
+        _acceptBestOffer(msg.sender, _from, _id, _value, false);
 
         return this.onERC1155Received.selector;
     }
