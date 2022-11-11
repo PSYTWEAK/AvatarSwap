@@ -31,4 +31,19 @@ contract AvatarIdentifier is Ownable {
         }
         return "";
     }
+
+    function isValidAvatar(address collection, uint256 tokenId) public view returns (bool) {
+        uint256[] memory ranges = collectionRanges[collection];
+        for (uint256 i = 0; i < ranges.length; i++) {
+            if (tokenId <= ranges[i]) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    modifier isValidAvatarType(address collection, uint256 tokenId) {
+        require(isValidAvatar(collection, tokenId), "AvatarIdentifier: Invalid avatar");
+        _;
+    }
 }

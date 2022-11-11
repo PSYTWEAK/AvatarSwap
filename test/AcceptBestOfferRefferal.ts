@@ -57,8 +57,8 @@ describe("Accept Best Offer Referral", function () {
     await avatarSwap.createOffer(testAvatar.address, "Avo Cato", "150000", 0, 1);
     await avatarSwap.createOffer(testAvatar.address, "Avo Cato", "200000", 0, 2);
 
-    await avatarSwap.connect(addr1).createReferral();
-    const referralCode = await avatarSwap.getReferralCode(addr1.address);
+    await avatarSwap.connect(owner).createReferral();
+    const referralCode = await avatarSwap.getReferralCode(owner.address);
     referralRouterAddress = await avatarSwap.getReferralRouter(referralCode);
   });
 
@@ -68,7 +68,6 @@ describe("Accept Best Offer Referral", function () {
     await testAvatar.connect(addr1).safeTransferFrom(addr1.address, referralRouterAddress, 1, 1, "0x");
     let balanceAfter = await testWETH.balanceOf(addr1.address);
     let expectedBalanceIncrease = 200000 - 200000 / 50;
-
     expect(balanceAfter).to.equal(balanceBefore.add(expectedBalanceIncrease.toString()));
   });
 

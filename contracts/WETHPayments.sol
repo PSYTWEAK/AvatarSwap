@@ -23,7 +23,6 @@ contract WETHPayments is ReferrerManagement {
     function _payReferalSeller(address to, uint256 price) internal {
         uint256 referrerFee = price / 50;
         uint256 newPrice = price - referrerFee;
-
         _transferWETH(getReferrer(msg.sender), referrerFee);
         _transferWETH(to, newPrice);
     }

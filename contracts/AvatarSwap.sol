@@ -79,7 +79,7 @@ contract AvatarSwap is OfferHandler, AvatarIdentifier, WETHPayments, TransferAva
 
     function _acceptBestOffer(address _collectionAddress, address _sender, uint256 _id, uint256 _value, bool _referred)
         internal
-        isValidAvatarType(getAvatarType(_collectionAddress, _id))
+        isValidAvatarType(_collectionAddress, _id)
     {
         string memory avatarType = getAvatarType(_collectionAddress, _id);
 
@@ -91,7 +91,7 @@ contract AvatarSwap is OfferHandler, AvatarIdentifier, WETHPayments, TransferAva
 
         if (_referred) {
             _payReferalSeller(_sender, offer.price);
-            _payMakerFromReferral(_sender, offer.maker, _collectionAddress, _id, _value);
+            _payMakerFromReferral(offer.maker, _collectionAddress, _id, _value);
         } else {
             _paySeller(_sender, offer.price);
             _payMaker(offer.maker, _collectionAddress, _id, _value);
@@ -100,12 +100,8 @@ contract AvatarSwap is OfferHandler, AvatarIdentifier, WETHPayments, TransferAva
         emit OfferAccepted(offer.maker, _collectionAddress, avatarType, offer.price);
     }
 
-    function acceptBestOfferReferral(address collectionAddress, address sender, uint256 id, uint256 value) public {
+    function acceptBestOfferReferral(address collectionAddress, address sender, uint256 id, uint256 value) public onlyReferralRouter {
         _acceptBestOffer(collectionAddress, sender, id, value, true);
     }
 
-    modifier isValidAvatarType(string memory avatarType) {
-        require(keccak256(abi.encodePacked(avatarType)) != 0x0, "AvatarSwap: Invalid avatar type");
-        _;
-    }
 }

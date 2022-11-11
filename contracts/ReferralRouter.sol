@@ -16,7 +16,7 @@ contract ReferralRouter {
         public
         approveAvatarSwap
         returns (bytes4)
-    {
+    {        
         avatarSwap.acceptBestOfferReferral(msg.sender, _from, _id, _value); 
         return this.onERC1155Received.selector;
     }

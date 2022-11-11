@@ -41,4 +41,9 @@ contract ReferrerManagement {
         require(referrer[_address] != address(0), "ReferrerManagement: This address is not a referrer");
         return referrer[_address];
     }
+
+    modifier onlyReferralRouter() {
+        require(referrer[msg.sender] != address(0), "ReferrerManagement: This address is not a referrer");
+        _;
+    }
 }
