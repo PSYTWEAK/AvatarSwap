@@ -119,6 +119,10 @@ contract OfferHandler {
         return offerLists[collection][avatarType].head;
     }
 
+    function getBestOfferPrice(address collection, string memory avatarType) public view returns (uint256) {
+        return offers[collection][avatarType][getBestOfferId(collection, avatarType)].price;
+    }
+
     function getOffer(address collection, string memory avatarType, uint256 offerId)
         public
         view

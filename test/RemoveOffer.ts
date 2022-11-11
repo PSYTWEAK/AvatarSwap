@@ -110,7 +110,7 @@ describe("Remove Offer", function () {
   it("Should fail to remove an offerid 2 again in Avo Cato", async function () {
     await expect(avatarSwap.removeOffer(testAvatar.address, "Avo Cato", 3)).to.be.revertedWith("OfferHandler: Not the maker of the offer");
   });
-  it("Should fail to remove an offerid 3 again in Avo Cato", async function () {
-    await expect(avatarSwap.removeOffer(testAvatar.address, "Avo Cato", 3)).to.be.revertedWith("OfferHandler: Not the maker of the offer");
+  it("Should fail to remove an offerid 3 again in non existent collection", async function () {
+    await expect(avatarSwap.removeOffer(testAvatar.address, "nothing", 3)).to.be.revertedWith("OfferHandler: Not the maker of the offer");
   });
 });
