@@ -22,6 +22,13 @@ contract AvatarIdentifier is Ownable {
         }
     }
 
+    function removeCollection(address collection, uint256[] memory ranges) public onlyOwner {
+        for (uint256 i = 0; i < ranges.length; i++) {
+            delete collectionTypes[collection][ranges[i]];
+        }
+        delete collectionRanges[collection];
+    }
+
     function getAvatarType(address collection, uint256 tokenId) public view returns (string memory) {
         uint256[] memory ranges = collectionRanges[collection];
         for (uint256 i = 0; i < ranges.length; i++) {
