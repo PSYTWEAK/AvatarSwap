@@ -8,11 +8,17 @@ contract TransferAvatars {
     function _payMaker(address to, address collectionAddress, uint256 id, uint256 value) internal {
         _transferAvatar(address(this), to, collectionAddress, id, value);
     }
-    
+
+    function _payMakerFromReferral(address referralRouter, address to, address collectionAddress, uint256 id, uint256 value) internal {
+        _transferAvatar(referralRouter, to, collectionAddress, id, value);
+    }
+
     function _transferAvatar(address from, address to, address collection, uint256 id, uint256 value)
         internal
         transferAvatarCompleted(to, collection, id)
     {
+        console.log("id: %s", id);
+        console.log("value: %s", value);
         IERC1155(collection).safeTransferFrom(from, to, id, value, "");
     }
 

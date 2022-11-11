@@ -33,6 +33,7 @@ contract AvatarSwap is OfferHandler, AvatarIdentifier, WETHPayments, TransferAva
         uint256 offerAbove,
         uint256 offerBelow
     ) public {
+        require(price > 0, "AvatarSwap: Price must be greater than 0");
         _transferWETHFrom(msg.sender, address(this), price);
 
         _addOffer(
@@ -90,11 +91,11 @@ contract AvatarSwap is OfferHandler, AvatarIdentifier, WETHPayments, TransferAva
 
         if (_referred) {
             _payReferalSeller(_sender, offer.price);
+            _payMakerFromReferral(_sender, offer.maker, _collectionAddress, _id, _value);
         } else {
             _paySeller(_sender, offer.price);
+            _payMaker(offer.maker, _collectionAddress, _id, _value);
         }
-
-        _payMaker(offer.maker, _collectionAddress, _id, _value);
 
         emit OfferAccepted(offer.maker, _collectionAddress, avatarType, offer.price);
     }

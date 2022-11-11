@@ -62,7 +62,7 @@ describe("Remove Offer", function () {
 
     await avatarSwap.createOffer(testAvatar.address, "Avo Cato", "100000", 0, 0);
     await avatarSwap.createOffer(testAvatar.address, "Avo Cato", "150000", 0, 1);
-    await avatarSwap.createOffer(testAvatar.address, "Avo Cato", "200000", 0, 1);
+    await avatarSwap.createOffer(testAvatar.address, "Avo Cato", "200000", 0, 2);
   });
 
   it("Should remove offerid 1 in Avo Cato", async function () {
@@ -78,7 +78,6 @@ describe("Remove Offer", function () {
     expect(offer.above).to.equal(0);
     expect(balanceAfter).to.equal(balanceBefore.add(100000));
   });
-
   it("Should remove offerid 3 in Avo Cato", async function () {
     let balanceBefore = await testWETH.balanceOf(owner.address);
     await avatarSwap.removeOffer(testAvatar.address, "Avo Cato", 3);

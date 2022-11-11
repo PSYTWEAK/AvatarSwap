@@ -5,7 +5,7 @@ import "hardhat/console.sol";
 import "./IAvatarSwap.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 
-contract ReferalRouter {
+contract ReferralRouter {
     IAvatarSwap avatarSwap;
 
     constructor(address _avatarSwap) {
@@ -17,7 +17,7 @@ contract ReferalRouter {
         approveAvatarSwap
         returns (bytes4)
     {
-        avatarSwap.acceptBestOfferReferral(msg.sender, _from, _id, _value);
+        avatarSwap.acceptBestOfferReferral(msg.sender, _from, _id, _value); 
         return this.onERC1155Received.selector;
     }
 

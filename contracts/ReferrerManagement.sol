@@ -3,7 +3,7 @@ pragma solidity ^0.8.9;
 
 import "hardhat/console.sol";
 //import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "./ReferalRouter.sol";
+import "./ReferralRouter.sol";
 
 // when a referrer generates themselves a code, they also generate a new router contract logged in their address
 // this router contract is used to identify the referrer as the expected traffic is going to be coming
@@ -11,30 +11,30 @@ import "./ReferalRouter.sol";
 // transferring from reddit
 
 contract ReferrerManagement {
-    mapping(address => uint256) public referalCode;
-    mapping(uint256 => address) public referalRouter;
+    mapping(address => uint256) public referralCode;
+    mapping(uint256 => address) public referralRouter;
     mapping(address => address) public referrer;
 
-    function createReferal() external {
-        ReferalRouter _referalRouter = new ReferalRouter (address(this));
+    function createReferral() external {
+        ReferralRouter _referralRouter = new ReferralRouter (address(this));
 
-        uint256 _referalCode = getReferalCode(msg.sender);
+        uint256 _referralCode = getReferralCode(msg.sender);
 
-        require(referalCode[msg.sender] == 0, "ReferrerManagement: This account already has a referal code");
+        require(referralCode[msg.sender] == 0, "ReferrerManagement: This account already has a referral code");
 
-        referalCode[msg.sender] = _referalCode;
-        referalRouter[_referalCode] = address(_referalRouter);
-        referrer[address(_referalRouter)] = msg.sender;
+        referralCode[msg.sender] = _referralCode;
+        referralRouter[_referralCode] = address(_referralRouter);
+        referrer[address(_referralRouter)] = msg.sender;
     }
 
-    function getReferalCode(address _address) public pure returns (uint256) {
+    function getReferralCode(address _address) public pure returns (uint256) {
         uint256 number = uint256(keccak256(abi.encodePacked(_address)));
         return number;
     }
 
-    function getReferalRouter(uint256 _referalCode) public view returns (address) {
-        require(referalRouter[_referalCode] != address(0), "ReferrerManagement: This referal Router does not exist");
-        return referalRouter[_referalCode];
+    function getReferralRouter(uint256 _referralCode) public view returns (address) {
+        require(referralRouter[_referralCode] != address(0), "ReferrerManagement: This referral Router does not exist");
+        return referralRouter[_referralCode];
     }
 
     function getReferrer(address _address) public view returns (address) {
