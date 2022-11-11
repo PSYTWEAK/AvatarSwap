@@ -10,7 +10,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 // This is used to find the correct offer list for the avatar being recieved
 
 contract ToggleTradingOpen is Ownable {
-    bool public tradingOpen = false;
+    bool public tradingOpen = true;
 
     function toggleTradingOpen() external onlyOwner {
         tradingOpen = !tradingOpen;
