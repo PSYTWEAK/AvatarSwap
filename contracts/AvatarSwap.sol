@@ -6,8 +6,9 @@ import "./OfferHandler.sol";
 import "./AvatarIdentifier.sol";
 import "./WETHPayments.sol";
 import "./TransferAvatars.sol";
+import "./ToggleTradingOpen.sol";
 
-contract AvatarSwap is OfferHandler, AvatarIdentifier, WETHPayments, TransferAvatars {
+contract AvatarSwap is OfferHandler, AvatarIdentifier, WETHPayments, TransferAvatars, ToggleTradingOpen {
 
     // Event emitted when a new offer is created
     event OfferCreated(
@@ -32,7 +33,7 @@ contract AvatarSwap is OfferHandler, AvatarIdentifier, WETHPayments, TransferAva
         uint256 price,
         uint256 offerAbove,
         uint256 offerBelow
-    ) public {
+    ) public isTradingOpen {
         require(price > 0, "AvatarSwap: Price must be greater than 0");
         _transferWETHFrom(msg.sender, address(this), price);
 
@@ -62,6 +63,7 @@ contract AvatarSwap is OfferHandler, AvatarIdentifier, WETHPayments, TransferAva
 
     function onERC1155Received(address _operator, address _from, uint256 _id, uint256 _value, bytes calldata _data)
         public
+        isTradingOpen
         returns (bytes4)
         
     {
@@ -76,6 +78,10 @@ contract AvatarSwap is OfferHandler, AvatarIdentifier, WETHPayments, TransferAva
     {
         revert();
         return this.onERC1155BatchReceived.selector;
+    }
+
+    function acceptBestOfferReferral(address collectionAddress, address sender, uint256 id, uint256 value) public isTradingOpen onlyReferralRouter {
+        _acceptBestOffer(collectionAddress, sender, id, value, true);
     }
 
     function _acceptBestOffer(address _collectionAddress, address _sender, uint256 _id, uint256 _value, bool _referred)
@@ -101,8 +107,5 @@ contract AvatarSwap is OfferHandler, AvatarIdentifier, WETHPayments, TransferAva
         emit OfferAccepted(offer.maker, _collectionAddress, avatarType, offer.price);
     }
 
-    function acceptBestOfferReferral(address collectionAddress, address sender, uint256 id, uint256 value) public onlyReferralRouter {
-        _acceptBestOffer(collectionAddress, sender, id, value, true);
-    }
 
 }
