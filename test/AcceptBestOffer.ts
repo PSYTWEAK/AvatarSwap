@@ -68,6 +68,18 @@ describe("Accept Best Offer", function () {
 
     expect(balanceAfter).to.equal(balanceBefore.add(expectedBalanceIncrease.toString()));
   });
+  it("Offer 3 should have been deleted", async function () {
+    const offer = await avatarSwap.getOffer(testAvatar.address, "Avo Cato", 3);
+
+    expect(offer.maker).to.equal("0x0000000000000000000000000000000000000000");
+    expect(offer.price).to.equal(0);
+    expect(offer.below).to.equal(0);
+    expect(offer.above).to.equal(0);
+  });
+  it("Best offerID should equal 2", async function () {
+    const bestOfferId = await avatarSwap.getBestOfferId(testAvatar.address, "Avo Cato");
+    expect(bestOfferId).to.equal(2);
+  });
 
   it("Should accept best offer when testAvatar is transfered to AvatarSwap", async function () {
     let balanceBefore = await testWETH.balanceOf(addr1.address);
@@ -77,5 +89,17 @@ describe("Accept Best Offer", function () {
     let expectedBalanceIncrease = 150000 - 150000 / 25;
 
     expect(balanceAfter).to.equal(balanceBefore.add(expectedBalanceIncrease.toString()));
+  });
+  it("Offer 2 should have been deleted", async function () {
+    const offer = await avatarSwap.getOffer(testAvatar.address, "Avo Cato", 2);
+
+    expect(offer.maker).to.equal("0x0000000000000000000000000000000000000000");
+    expect(offer.price).to.equal(0);
+    expect(offer.below).to.equal(0);
+    expect(offer.above).to.equal(0);
+  });
+  it("Best offerID should equal 1", async function () {
+    const bestOfferId = await avatarSwap.getBestOfferId(testAvatar.address, "Avo Cato");
+    expect(bestOfferId).to.equal(1);
   });
 });

@@ -78,6 +78,10 @@ describe("Remove Offer", function () {
     expect(offer.above).to.equal(0);
     expect(balanceAfter).to.equal(balanceBefore.add(100000));
   });
+  it("Best offer should still be Offer Id 3", async function () {
+    const bestOfferId = await avatarSwap.getBestOfferId(testAvatar.address, "Avo Cato");
+    expect(bestOfferId).to.equal(3);
+  });
   it("Should remove offerid 3 in Avo Cato", async function () {
     let balanceBefore = await testWETH.balanceOf(owner.address);
     await avatarSwap.removeOffer(testAvatar.address, "Avo Cato", 3);
@@ -91,6 +95,10 @@ describe("Remove Offer", function () {
     expect(offer.above).to.equal(0);
     expect(balanceAfter).to.equal(balanceBefore.add(200000));
   });
+  it("Best offerID should equal 2", async function () {
+    const bestOfferId = await avatarSwap.getBestOfferId(testAvatar.address, "Avo Cato");
+    expect(bestOfferId).to.equal(2);
+  });
   it("Should remove offerid 2 in Avo Cato", async function () {
     let balanceBefore = await testWETH.balanceOf(owner.address);
     await avatarSwap.removeOffer(testAvatar.address, "Avo Cato", 2);
@@ -103,6 +111,10 @@ describe("Remove Offer", function () {
     expect(offer.below).to.equal(0);
     expect(offer.above).to.equal(0);
     expect(balanceAfter).to.equal(balanceBefore.add(150000));
+  });
+  it("Best offerID should equal 0", async function () {
+    const bestOfferId = await avatarSwap.getBestOfferId(testAvatar.address, "Avo Cato");
+    expect(bestOfferId).to.equal(0);
   });
   it("Should fail to remove an offerid 1 again in Avo Cato", async function () {
     await expect(avatarSwap.removeOffer(testAvatar.address, "Avo Cato", 3)).to.be.revertedWith("OfferHandler: Not the maker of the offer");
