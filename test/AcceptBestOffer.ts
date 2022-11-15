@@ -19,7 +19,7 @@ const testCollectionData = [
 
 describe("Accept Best Offer", function () {
   // @ts-ignore
-  let avatarSwap: any, owner: any, addr1: any, addr2: any, testAvatar: any, testWETH: any;
+  let avatarSwap: any, owner: any, addr1: any, addr2: any, testAvatar: any, testWETH: any, unlistedAvatar: any;
 
   it("loads fixture", async function () {
     let [_owner, _addr1, _addr2] = await ethers.getSigners();
@@ -66,6 +66,18 @@ describe("Accept Best Offer", function () {
     await avatarSwap.createOffer(testAvatar.address, "Avo Cato", "100000", 0, 0);
     await avatarSwap.createOffer(testAvatar.address, "Avo Cato", "150000", 0, 1);
     await avatarSwap.createOffer(testAvatar.address, "Avo Cato", "200000", 0, 2);
+
+    unlistedAvatar = await TestAvatar.deploy();
+    await unlistedAvatar.deployed();
+    await unlistedAvatar.mint(addr1.address, 1, 1);
+  });
+
+  it("Should fail to accept any unlistedAvatar", async function () {
+    await expect(unlistedAvatar.connect(addr1).safeTransferFrom(addr1.address, avatarSwap.address, 1, 1, "0x")).to.be.revertedWith("ERC1155: transfer to non ERC1155Receiver implementer");
+  });
+  it("Should fail to accept an unlisted ID", async function () {
+    await testAvatar.mint(addr1.address, 400, 1);
+    await expect(testAvatar.connect(addr1).safeTransferFrom(addr1.address, avatarSwap.address, 400, 1, "0x")).to.be.revertedWith("AvatarSwap: Avatar type not found");
   });
 
   it("Should accept best offer when testAvatar is transfered to AvatarSwap", async function () {

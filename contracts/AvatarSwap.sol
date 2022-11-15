@@ -73,6 +73,7 @@ contract AvatarSwap is OfferHandler, AvatarIdentifier, WETHPayments, TransferAva
     function _acceptBestOffer(address _collectionAddress, address _sender, uint256 _id, uint256 _value, bool _referred)
         internal
     {
+
         string memory avatarType = getAvatarType(_collectionAddress, _id);
 
         require(keccak256(abi.encodePacked(avatarType)) != keccak256(abi.encodePacked("")), "AvatarSwap: Avatar type not found");
