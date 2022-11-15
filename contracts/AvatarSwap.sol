@@ -10,17 +10,7 @@ import "./ToggleTradingOpen.sol";
 
 contract AvatarSwap is OfferHandler, AvatarIdentifier, WETHPayments, TransferAvatars, ToggleTradingOpen {
 
-    // Event emitted when a new offer is created
-    event OfferCreated(
-        address indexed maker, address indexed contractAddress, string indexed avatarType, uint256 price
-    );
 
-    event OfferRemoved(
-        address indexed maker, address indexed contractAddress, string indexed avatarType, uint256 price
-    );
-    event OfferAccepted(
-        address indexed maker, address indexed contractAddress, string indexed avatarType, uint256 price
-    );
 
     constructor(address _weth) WETHPayments(_weth) public {}
 
@@ -43,7 +33,7 @@ contract AvatarSwap is OfferHandler, AvatarIdentifier, WETHPayments, TransferAva
             avatarType
         );
 
-        emit OfferCreated(msg.sender, collectionAddress, avatarType, price);
+
     }
 
     function removeOffer(address collectionAddress, string memory avatarType, uint256 offerId) 
@@ -55,10 +45,6 @@ contract AvatarSwap is OfferHandler, AvatarIdentifier, WETHPayments, TransferAva
         _removeOffer(offerId, collectionAddress, avatarType);
 
         _transferWETH(msg.sender, refund);
-
-        emit OfferRemoved(
-            msg.sender, collectionAddress, avatarType, offers[collectionAddress][avatarType][offerId].price
-            );
     }
 
     function onERC1155Received(address _operator, address _from, uint256 _id, uint256 _value, bytes calldata _data)
@@ -86,9 +72,10 @@ contract AvatarSwap is OfferHandler, AvatarIdentifier, WETHPayments, TransferAva
 
     function _acceptBestOffer(address _collectionAddress, address _sender, uint256 _id, uint256 _value, bool _referred)
         internal
-        isValidAvatarType(_collectionAddress, _id)
     {
         string memory avatarType = getAvatarType(_collectionAddress, _id);
+
+        require(keccak256(abi.encodePacked(avatarType)) != keccak256(abi.encodePacked("")), "AvatarSwap: Avatar type not found");
 
         CollectionOffer memory offer = getBestOffer(_collectionAddress, avatarType);
 
@@ -103,8 +90,6 @@ contract AvatarSwap is OfferHandler, AvatarIdentifier, WETHPayments, TransferAva
             _paySeller(_sender, offer.price);
             _payMaker(offer.maker, _collectionAddress, _id, _value);
         }
-
-        emit OfferAccepted(offer.maker, _collectionAddress, avatarType, offer.price);
     }
 
 

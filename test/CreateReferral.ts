@@ -5,14 +5,6 @@ import { BigNumber } from "ethers";
 
 // this test suite is for the AvatarSwap contract
 
-const testCollectionData = [
-  {
-    // collectionAddress: "0x91E51B92a2EfEA89bF1B6f66ad719737264724bE", using contract generated in fixture
-    ranges: ["10", "20", "30"],
-    avatarTypes: ["Avo Cato", "Hot Dog", "Mouse au Chocolat"],
-  },
-];
-
 describe("Create Referral", function () {
   // @ts-ignore
   let avatarSwap: any, owner: any, addr1: any, addr2: any, testAvatar: any, testWETH: any;

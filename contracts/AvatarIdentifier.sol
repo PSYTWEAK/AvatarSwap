@@ -11,46 +11,47 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 // This is used to find the correct offer list for the avatar being recieved
 
 contract AvatarIdentifier is Ownable {
-    mapping(address => uint256[]) public collectionRanges;
+    // collection address => Id ranges within collection
+    mapping(address => uint256[][]) public collectionRanges;
+    // collection address => range[0] or minimum id in the range => collection type 
     mapping(address => mapping(uint256 => string)) public collectionTypes;
 
-    function addCollection(address collection, uint256[] memory ranges, string[] memory types) public onlyOwner {
-        require(ranges.length == types.length, "AvatarIdentifier: Ranges and types must be the same length");
-        collectionRanges[collection] = ranges;
+    function addCollectionTypes(address collection, uint256[][] memory ranges, string[] memory types) public onlyOwner {
         for (uint256 i = 0; i < ranges.length; i++) {
-            collectionTypes[collection][ranges[i]] = types[i];
+            collectionTypes[collection][ranges[i][0]] = types[i];
         }
     }
 
-    function removeCollection(address collection, uint256[] memory ranges) public onlyOwner {
+    function addCollectionRanges(address collection, uint256[][] memory ranges) public onlyOwner {
+        collectionRanges[collection] = ranges;
+    }
+
+    function removeCollectionTypes(address collection, uint256[][] memory ranges) public onlyOwner {
         for (uint256 i = 0; i < ranges.length; i++) {
-            delete collectionTypes[collection][ranges[i]];
+            delete collectionTypes[collection][ranges[i][0]];
         }
+    }
+
+    function removeCollectionRanges(address collection, uint256[][] memory ranges) public onlyOwner {
         delete collectionRanges[collection];
     }
 
     function getAvatarType(address collection, uint256 tokenId) public view returns (string memory) {
-        uint256[] memory ranges = collectionRanges[collection];
-        for (uint256 i = 0; i < ranges.length; i++) {
-            if (tokenId <= ranges[i]) {
-                return collectionTypes[collection][ranges[i]];
+        // binary search through the ranges and find the range that the tokenId is in
+        uint256[][] memory ranges = collectionRanges[collection];
+        uint256 min = 0;
+        uint256 max = ranges.length - 1;
+        while (min <= max) {
+            uint256 mid = (min + max) / 2;
+            if (ranges[mid][0] <= tokenId && ranges[mid][1] >= tokenId) {
+                return collectionTypes[collection][ranges[mid][0]];
+            } else if (ranges[mid][0] > tokenId) {
+                max = mid - 1;
+            } else {
+                min = mid + 1;
             }
         }
         return "";
     }
 
-    function isValidAvatar(address collection, uint256 tokenId) public view returns (bool) {
-        uint256[] memory ranges = collectionRanges[collection];
-        for (uint256 i = 0; i < ranges.length; i++) {
-            if (tokenId <= ranges[i]) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    modifier isValidAvatarType(address collection, uint256 tokenId) {
-        require(isValidAvatar(collection, tokenId), "AvatarIdentifier: Invalid avatar");
-        _;
-    }
 }

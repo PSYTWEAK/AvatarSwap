@@ -8,7 +8,11 @@ import { BigNumber } from "ethers";
 const testCollectionData = [
   {
     // collectionAddress: "0x91E51B92a2EfEA89bF1B6f66ad719737264724bE", using contract generated in fixture
-    ranges: ["10", "20", "30"],
+    ranges: [
+      [1, 10],
+      [11, 20],
+      [21, 31],
+    ],
     avatarTypes: ["Avo Cato", "Hot Dog", "Mouse au Chocolat"],
   },
 ];
@@ -46,7 +50,12 @@ describe("Accept Best Offer", function () {
     await testAvatar.mint(addr1.address, 1, 1);
     await testAvatar.mint(addr1.address, 2, 1);
 
-    await avatarSwap.addCollection(
+    await avatarSwap.addCollectionRanges(
+      testAvatar.address,
+      // @ts-ignore
+      testCollectionData[0].ranges
+    );
+    await avatarSwap.addCollectionTypes(
       testAvatar.address,
       // @ts-ignore
       testCollectionData[0].ranges,

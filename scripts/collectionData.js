@@ -1,7 +1,99 @@
+/* Argentina	0	200099
+Australia	200100	400199
+Belgium	400200	600299
+Brazil	600300	800399
+Cameroon	800400	1000499
+Canada	1000500	1200599
+Costa Rica	1200600	1400699
+Croatia	1400700	1600799
+Denmark	1600800	1800899
+Ecuador	1800900	2000999
+England	2001000	2201099
+France	2201100	2401199
+Germany	2401200	2601299
+Ghana	2601300	2801399
+Earth	2801400	3801499
+Iran	3801500	4001599
+Japan	4001600	4201699
+South Korea	4201700	4401799
+Mexico	4401800	4801999
+Netherlands	4802000	5002099
+Poland	5002100	5202199
+Portugal	5202200	5402299
+Qatar	5402300	5802499
+Senegal	5802500	6202699
+spain	6202700	6402799
+Switzerland	6402800	6602899
+Tunisia	6602900	6802999
+Uruguay	6803000	7003099
+USA	7003100	8003199
+Wales	8003200	8203199 */
 export const collectionData = [
   {
     collectionAddress: "0x622d8FeA4603BA9EdAF1084B407052D8b0A9bed7",
-    ranges: [250000],
-    avatarTypes: ["Argentina"],
+    ranges: [
+      [0, 200099],
+      [200100, 400199],
+      [400200, 600299],
+      [600300, 800399],
+      [800400, 1000499],
+      [1000500, 1200599],
+      [1200600, 1400699],
+      [1400700, 1600799],
+      [1600800, 1800899],
+      [1800900, 2000999],
+      [2001000, 2201099],
+      [2201100, 2401199],
+      [2401200, 2601299],
+      [2601300, 2801399],
+      [2801400, 3801499],
+      [3801500, 4001599],
+      [4001600, 4201699],
+      [4201700, 4401799],
+      [4401800, 4801999],
+      [4802000, 5002099],
+      [5002100, 5202199],
+      [5202200, 5402299],
+      [5402300, 5802499],
+      [5802500, 6202699],
+      [6202700, 6402799],
+      [6402800, 6602899],
+      [6602900, 6802999],
+      [6803000, 7003099],
+      [7003100, 8003199],
+      [8003200, 8203199],
+    ],
+    avatarTypes: [
+      "Argentina",
+      "Australia",
+      "Belgium",
+      "Brazil",
+      "Cameroon",
+      "Canada",
+      "Costa Rica",
+      "Croatia",
+      "Denmark",
+      "Ecuador",
+      "England",
+      "France",
+      "Germany",
+      "Ghana",
+      "Earth",
+      "Iran",
+      "Japan",
+      "South Korea",
+      "Mexico",
+      "Netherlands",
+      "Poland",
+      "Portugal",
+      "Qatar",
+      "Senegal",
+      "spain",
+      "Switzerland",
+      "Tunisia",
+      "Uruguay",
+      "USA",
+      "Wales",
+    ],
   },
 ];

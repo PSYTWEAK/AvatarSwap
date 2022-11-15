@@ -4,6 +4,15 @@ pragma solidity ^0.8.9;
 import "hardhat/console.sol";
 
 contract OfferHandler {
+
+    event OfferCreated(
+        uint256 offerId, address indexed maker, address indexed collectionAddress, string indexed avatarType, uint256 price
+    );
+
+    event OfferRemoved(
+       uint256 offerId, address indexed maker, address indexed collectionAddress, string indexed avatarType, uint256 price
+    );
+
     struct CollectionOffer {
         address maker;
         uint256 price;
@@ -19,8 +28,6 @@ contract OfferHandler {
 
     uint256 offerId = 0;
 
-    // Mapping the contract address and the token type to a list of offers
-    // avatars share the same contract address but have different types
     mapping(address => mapping(string => mapping(uint256 => CollectionOffer))) public offers;
     mapping(address => mapping(string => OfferList)) public offerLists;
 
@@ -35,8 +42,6 @@ contract OfferHandler {
             offerLists[collection][avatarType].tail = offerId;
         } else {
 
-
-                
             if(collectionOffer.above != 0) {
                 // if the collectionOffer.above is not 0 then the offer above is checked to make sure it is higher
                 CollectionOffer storage above = offers[collection][avatarType][collectionOffer.above]; 
@@ -71,6 +76,8 @@ contract OfferHandler {
 
         offers[collection][avatarType][offerId] = collectionOffer;
         offerLists[collection][avatarType].length++;
+
+        emit OfferCreated(offerId, msg.sender, collection, avatarType, collectionOffer.price);
     }
 
     function _removeOffer(uint256 offerId, address collection, string memory avatarType)
@@ -99,6 +106,8 @@ contract OfferHandler {
         delete offers[collection][avatarType][offerId];
 
         offerLists[collection][avatarType].length--;
+
+        emit OfferRemoved(offerId, msg.sender, collection, avatarType, offer.price);
     }
 
     modifier isMaker(uint256 offerId, address collection, string memory avatarType) {
