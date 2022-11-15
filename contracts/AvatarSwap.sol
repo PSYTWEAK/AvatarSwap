@@ -19,7 +19,7 @@ contract AvatarSwap is OfferHandler, AvatarIdentifier, WETHPayments, TransferAva
     // revert if the offer above and below are not above and below the new offer
     function createOffer(
         address collectionAddress,
-        string memory avatarType,
+        uint256 avatarType,
         uint256 price,
         uint256 offerAbove,
         uint256 offerBelow
@@ -36,7 +36,7 @@ contract AvatarSwap is OfferHandler, AvatarIdentifier, WETHPayments, TransferAva
 
     }
 
-    function removeOffer(address collectionAddress, string memory avatarType, uint256 offerId) 
+    function removeOffer(address collectionAddress, uint256 avatarType, uint256 offerId) 
         public         
         isMaker(offerId, collectionAddress, avatarType) {
 
@@ -74,9 +74,9 @@ contract AvatarSwap is OfferHandler, AvatarIdentifier, WETHPayments, TransferAva
         internal
     {
 
-        string memory avatarType = getAvatarType(_collectionAddress, _id);
+        uint256 avatarType = getAvatarType(_collectionAddress, _id);
 
-        require(keccak256(abi.encodePacked(avatarType)) != keccak256(abi.encodePacked("")), "AvatarSwap: Avatar type not found");
+        require(avatarType != 0, "AvatarSwap: Avatar type not found");
 
         CollectionOffer memory offer = getBestOffer(_collectionAddress, avatarType);
 

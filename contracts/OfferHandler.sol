@@ -6,11 +6,11 @@ import "hardhat/console.sol";
 contract OfferHandler {
 
     event OfferCreated(
-        uint256 offerId, address indexed maker, address indexed collectionAddress, string indexed avatarType, uint256 price
+        uint256 offerId, address indexed maker, address indexed collectionAddress, uint256 avatarType, uint256 price
     );
 
     event OfferRemoved(
-       uint256 offerId, address indexed maker, address indexed collectionAddress, string indexed avatarType, uint256 price
+       uint256 offerId, address indexed maker, address indexed collectionAddress, uint256 avatarType, uint256 price
     );
 
     struct CollectionOffer {
@@ -28,10 +28,10 @@ contract OfferHandler {
 
     uint256 offerId = 0;
 
-    mapping(address => mapping(string => mapping(uint256 => CollectionOffer))) public offers;
-    mapping(address => mapping(string => OfferList)) public offerLists;
+    mapping(address => mapping(uint256 => mapping(uint256 => CollectionOffer))) public offers;
+    mapping(address => mapping(uint256 => OfferList)) public offerLists;
 
-    function _addOffer(CollectionOffer memory collectionOffer, address collection, string memory avatarType)
+    function _addOffer(CollectionOffer memory collectionOffer, address collection, uint256 avatarType)
         internal
     {
         offerId++;
@@ -80,7 +80,7 @@ contract OfferHandler {
         emit OfferCreated(offerId, msg.sender, collection, avatarType, collectionOffer.price);
     }
 
-    function _removeOffer(uint256 offerId, address collection, string memory avatarType)
+    function _removeOffer(uint256 offerId, address collection, uint256 avatarType)
         internal   
         offerExists(offerId, collection, avatarType)
     {
@@ -110,29 +110,29 @@ contract OfferHandler {
         emit OfferRemoved(offerId, msg.sender, collection, avatarType, offer.price);
     }
 
-    modifier isMaker(uint256 offerId, address collection, string memory avatarType) {
+    modifier isMaker(uint256 offerId, address collection, uint256 avatarType) {
         require(offers[collection][avatarType][offerId].maker == msg.sender, "OfferHandler: Not the maker of the offer");
         _;
     }
 
-    modifier offerExists(uint256 offerId, address collection, string memory avatarType) {
+    modifier offerExists(uint256 offerId, address collection, uint256 avatarType) {
         require(offers[collection][avatarType][offerId].price != 0, "OfferHandler: Offer does not exist");
         _;
     }
 
-    function getBestOffer(address collection, string memory avatarType) public view returns (CollectionOffer memory) {
+    function getBestOffer(address collection, uint256 avatarType) public view returns (CollectionOffer memory) {
         return offers[collection][avatarType][getBestOfferId(collection, avatarType)];
     }
 
-    function getBestOfferId(address collection, string memory avatarType) public view returns (uint256) {
+    function getBestOfferId(address collection, uint256 avatarType) public view returns (uint256) {
         return offerLists[collection][avatarType].head;
     }
 
-    function getBestOfferPrice(address collection, string memory avatarType) public view returns (uint256) {
+    function getBestOfferPrice(address collection, uint256 avatarType) public view returns (uint256) {
         return offers[collection][avatarType][getBestOfferId(collection, avatarType)].price;
     }
 
-    function getOffer(address collection, string memory avatarType, uint256 offerId)
+    function getOffer(address collection, uint256 avatarType, uint256 offerId)
         public
         view
         returns (CollectionOffer memory)

@@ -11,47 +11,62 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 // This is used to find the correct offer list for the avatar being recieved
 
 contract AvatarIdentifier is Ownable {
-    // collection address => Id ranges within collection
-    mapping(address => uint256[][]) public collectionRanges;
-    // collection address => range[0] or minimum id in the range => collection type 
-    mapping(address => mapping(uint256 => string)) public collectionTypes;
 
-    function addCollectionTypes(address collection, uint256[][] memory ranges, string[] memory types) public onlyOwner {
-        for (uint256 i = 0; i < ranges.length; i++) {
-            collectionTypes[collection][ranges[i][0]] = types[i];
+    event AvatarAdded(address collection, string avatarName, uint256 avatarTypeId);
+
+    event AvatarRemoved(address collectionAddress, uint256 internalId);
+
+    // collection address => index => collection type 
+    mapping(address => mapping(uint256 => uint256[])) internal collectionIdRanges;
+    // collection address => index => internal avatar type identifier
+    mapping(address => mapping(uint256 => uint256)) internal avatarTypeId;
+    // collection address => avatar type
+    mapping(address => uint256) internal numAvatarTypes;
+
+
+    uint256 internalIdCounter = 0;
+
+    function addCollectionTypes(address collection, uint256[] memory indexes, uint256[][] memory ranges, string[] memory avatarName) public onlyOwner {
+        for (uint256 i = 0; i < indexes.length; i++) {
+            require(ranges[i][0] > collectionIdRanges[collection][indexes[i] - 1][1], "AvatarIdentifier: Indexes must be in ascending order");
+            require(collectionIdRanges[collection][indexes[i]][1] == 0, "AvatarIdentifier: Index already exists");
+
+            collectionIdRanges[collection][indexes[i]] = ranges[i];
+
+            internalIdCounter++;
+            avatarTypeId[collection][indexes[i]] = internalIdCounter;
+
+            emit AvatarAdded(collection, avatarName[i], internalIdCounter);
         }
+        numAvatarTypes[collection] += indexes.length;
     }
 
-    function addCollectionRanges(address collection, uint256[][] memory ranges) public onlyOwner {
-        collectionRanges[collection] = ranges;
-    }
+    function removeCollectionTypes(address collection, uint256[] memory indexes) public onlyOwner {
+        for (uint256 i = 0; i < indexes.length; i++) {
+            delete collectionIdRanges[collection][indexes[i]];
+            delete avatarTypeId[collection][indexes[i]];
 
-    function removeCollectionTypes(address collection, uint256[][] memory ranges) public onlyOwner {
-        for (uint256 i = 0; i < ranges.length; i++) {
-            delete collectionTypes[collection][ranges[i][0]];
+            emit AvatarRemoved(collection, avatarTypeId[collection][indexes[i]]);
         }
+        numAvatarTypes[collection] -= indexes.length;
     }
 
-    function removeCollectionRanges(address collection, uint256[][] memory ranges) public onlyOwner {
-        delete collectionRanges[collection];
-    }
-
-    function getAvatarType(address collection, uint256 tokenId) public view returns (string memory) {
-        // binary search through the ranges and find the range that the tokenId is in
-        uint256[][] memory ranges = collectionRanges[collection];
+    function getAvatarType(address collection, uint256 tokenId) public view returns (uint256) {
+        // binary search through the ranges and find the range that the tokenId is in and return internalId
         uint256 min = 0;
-        uint256 max = ranges.length - 1;
+        uint256 max = numAvatarTypes[collection] - 1;
+        uint256 mid;
         while (min <= max) {
-            uint256 mid = (min + max) / 2;
-            if (ranges[mid][0] <= tokenId && ranges[mid][1] >= tokenId) {
-                return collectionTypes[collection][ranges[mid][0]];
-            } else if (ranges[mid][0] > tokenId) {
+            mid = (min + max) / 2;
+            if (collectionIdRanges[collection][mid][0] <= tokenId && collectionIdRanges[collection][mid][1] >= tokenId) {
+                return avatarTypeId[collection][mid];
+            } else if (collectionIdRanges[collection][mid][0] > tokenId) {
                 max = mid - 1;
             } else {
                 min = mid + 1;
             }
         }
-        return "";
+        revert("AvatarIdentifier: TokenId not found");
     }
 
 }
