@@ -28,8 +28,9 @@ Tunisia	6602900	6802999
 Uruguay	6803000	7003099
 USA	7003100	8003199
 Wales	8003200	8203199 */
-export const collectionData = [
+const collectionData = [
   {
+    indexes: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29],
     collectionAddress: "0x622d8FeA4603BA9EdAF1084B407052D8b0A9bed7",
     ranges: [
       [0, 200099],

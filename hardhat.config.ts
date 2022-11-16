@@ -4,6 +4,11 @@ import "@nomicfoundation/hardhat-toolbox";
 const config: HardhatUserConfig = {
   solidity: "0.8.17",
   networks: {
+    polygon: {
+      url: "https://rpc-mainnet.matic.quiknode.pro",
+      accounts: ["0x..."],
+      gas: 10000000,
+    },
     // hardhat: { allowUnlimitedContractSize: true },
   },
 };

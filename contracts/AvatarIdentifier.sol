@@ -26,10 +26,16 @@ contract AvatarIdentifier is Ownable {
 
     uint256 internalIdCounter = 0;
 
-    function addCollectionTypes(address collection, uint256[] memory indexes, uint256[][] memory ranges, string[] memory avatarName) public onlyOwner {
+    function addAvatarTypes(address collection, uint256[] memory indexes, uint256[][] memory ranges, string[] memory avatarName) public onlyOwner {
+        require(indexes.length == ranges.length, "AvatarIdentifier: Indexes and ranges must be the same length");
+
         for (uint256 i = 0; i < indexes.length; i++) {
-            require(ranges[i][0] > collectionIdRanges[collection][indexes[i] - 1][1], "AvatarIdentifier: Indexes must be in ascending order");
-            require(collectionIdRanges[collection][indexes[i]][1] == 0, "AvatarIdentifier: Index already exists");
+            if (indexes[i] > 0 && ranges[i][0] < collectionIdRanges[collection][indexes[i] - 1][1]) {
+
+            revert("AvatarIdentifier: Indexes must be in ascending order");
+            }
+            require(collectionIdRanges[collection][indexes[i]].length == 0, "AvatarIdentifier: Index already exists");
+            require(ranges[i].length == 2, "AvatarIdentifier: Range must be 2 numbers");
 
             collectionIdRanges[collection][indexes[i]] = ranges[i];
 
@@ -41,7 +47,7 @@ contract AvatarIdentifier is Ownable {
         numAvatarTypes[collection] += indexes.length;
     }
 
-    function removeCollectionTypes(address collection, uint256[] memory indexes) public onlyOwner {
+    function removeAvatarTypes(address collection, uint256[] memory indexes) public onlyOwner {
         for (uint256 i = 0; i < indexes.length; i++) {
             delete collectionIdRanges[collection][indexes[i]];
             delete avatarTypeId[collection][indexes[i]];

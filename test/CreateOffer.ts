@@ -7,6 +7,7 @@ import { BigNumber } from "ethers";
 const testCollectionData = [
   {
     // collectionAddress: "0x91E51B92a2EfEA89bF1B6f66ad719737264724bE", using contract generated in fixture
+    indexes: ["0", "1", "2"],
     ranges: [
       [1, 10],
       [11, 20],
@@ -15,6 +16,10 @@ const testCollectionData = [
     avatarTypes: ["Avo Cato", "Hot Dog", "Mouse au Chocolat"],
   },
 ];
+const testOfferData = {
+  avoCatoId: 1,
+  hotDog: 2,
+};
 
 describe("Create Offer", function () {
   // @ts-ignore
@@ -55,26 +60,15 @@ describe("Create Offer", function () {
     // @ts-ignore
     await testAvatar.mint(owner.address, 0, 40);
 
-    await avatarSwap.addCollectionRanges(
-      testAvatar.address,
-      // @ts-ignore
-      testCollectionData[0].ranges
-    );
-    await avatarSwap.addCollectionTypes(
-      testAvatar.address,
-      // @ts-ignore
-      testCollectionData[0].ranges,
-      // @ts-ignore
-      testCollectionData[0].avatarTypes
-    );
+    await avatarSwap.addAvatarTypes(testAvatar.address, testCollectionData[0].indexes, testCollectionData[0].ranges, testCollectionData[0].avatarTypes);
   });
 
   it("Should create an offer on Avo Cato", async function () {
     // create offer
-    await avatarSwap.createOffer(testAvatar.address, "Avo Cato", "1000000000000000000", 0, 0);
+    await avatarSwap.createOffer(testAvatar.address, testOfferData.avoCatoId, "1000000000000000000", 0, 0);
 
     // get offer
-    const offer = await avatarSwap.getOffer(testAvatar.address, "Avo Cato", 1);
+    const offer = await avatarSwap.getOffer(testAvatar.address, testOfferData.avoCatoId, 1);
 
     expect(offer.maker).to.equal(owner.address);
     expect(offer.price).to.equal("1000000000000000000");
@@ -83,10 +77,10 @@ describe("Create Offer", function () {
   });
   it("Should create a second offer on Avo Cato higher than the first", async function () {
     // create offer
-    await avatarSwap.createOffer(testAvatar.address, "Avo Cato", "2000000000000000000", 0, 1);
+    await avatarSwap.createOffer(testAvatar.address, testOfferData.avoCatoId, "2000000000000000000", 0, 1);
 
     // get offer
-    const offer = await avatarSwap.getOffer(testAvatar.address, "Avo Cato", 2);
+    const offer = await avatarSwap.getOffer(testAvatar.address, testOfferData.avoCatoId, 2);
 
     expect(offer.maker).to.equal(owner.address);
     expect(offer.price).to.equal("2000000000000000000");
@@ -95,10 +89,10 @@ describe("Create Offer", function () {
   });
   it("Should create a third offer on Avo Cato in the middle of previous two offers", async function () {
     // create offer
-    await avatarSwap.createOffer(testAvatar.address, "Avo Cato", "1500000000000000000", 2, 1);
+    await avatarSwap.createOffer(testAvatar.address, testOfferData.avoCatoId, "1500000000000000000", 2, 1);
 
     // get offer
-    const offer = await avatarSwap.getOffer(testAvatar.address, "Avo Cato", 3);
+    const offer = await avatarSwap.getOffer(testAvatar.address, testOfferData.avoCatoId, 3);
 
     expect(offer.maker).to.equal(owner.address);
     expect(offer.price).to.equal("1500000000000000000");
@@ -106,17 +100,17 @@ describe("Create Offer", function () {
     expect(offer.below).to.equal("1");
   });
   it("Should fail to create offer with incorrect above", async function () {
-    await expect(avatarSwap.createOffer(testAvatar.address, "Avo Cato", "10000000000000000", 3, 0)).to.be.revertedWith("OfferHandler: Incorrect position, offer below does not match the below offer of the offer above");
+    await expect(avatarSwap.createOffer(testAvatar.address, testOfferData.avoCatoId, "10000000000000000", 3, 0)).to.be.revertedWith("OfferHandler: Incorrect position, offer below does not match the below offer of the offer above");
   });
   it("Should fail to create offer with incorrect above", async function () {
-    await expect(avatarSwap.createOffer(testAvatar.address, "Avo Cato", "1600000000000000000", 2, 1)).to.be.revertedWith("OfferHandler: Incorrect position, offer below does not match the below offer of the offer above");
+    await expect(avatarSwap.createOffer(testAvatar.address, testOfferData.avoCatoId, "1600000000000000000", 2, 1)).to.be.revertedWith("OfferHandler: Incorrect position, offer below does not match the below offer of the offer above");
   });
   it("Should create a fourth offer on Avo Cato which is the lowest offer yet", async function () {
     // create offer
-    await avatarSwap.createOffer(testAvatar.address, "Avo Cato", "1000000000000000", 1, 0);
+    await avatarSwap.createOffer(testAvatar.address, testOfferData.avoCatoId, "1000000000000000", 1, 0);
 
     // get offer
-    const offer = await avatarSwap.getOffer(testAvatar.address, "Avo Cato", 4);
+    const offer = await avatarSwap.getOffer(testAvatar.address, testOfferData.avoCatoId, 4);
 
     expect(offer.maker).to.equal(owner.address);
     expect(offer.price).to.equal("1000000000000000");
@@ -126,10 +120,10 @@ describe("Create Offer", function () {
 
   it("Should create first offer on Mouse au Chocolat", async function () {
     // create offer
-    await avatarSwap.createOffer(testAvatar.address, "Mouse au Chocolat", "1000000000000000000", 0, 0);
+    await avatarSwap.createOffer(testAvatar.address, testOfferData.hotDog, "1000000000000000000", 0, 0);
 
     // get offer
-    const offer = await avatarSwap.getOffer(testAvatar.address, "Mouse au Chocolat", 5);
+    const offer = await avatarSwap.getOffer(testAvatar.address, testOfferData.hotDog, 5);
 
     expect(offer.maker).to.equal(owner.address);
     expect(offer.price).to.equal("1000000000000000000");
@@ -138,10 +132,10 @@ describe("Create Offer", function () {
   });
   it("Should create second offer on Mouse au Chocolat", async function () {
     // create offer
-    await avatarSwap.createOffer(testAvatar.address, "Mouse au Chocolat", "2000000000000000000", 0, 5);
+    await avatarSwap.createOffer(testAvatar.address, testOfferData.hotDog, "2000000000000000000", 0, 5);
 
     // get offer
-    const offer = await avatarSwap.getOffer(testAvatar.address, "Mouse au Chocolat", 6);
+    const offer = await avatarSwap.getOffer(testAvatar.address, testOfferData.hotDog, 6);
 
     expect(offer.maker).to.equal(owner.address);
     expect(offer.price).to.equal("2000000000000000000");
@@ -150,10 +144,10 @@ describe("Create Offer", function () {
   });
   it("Should create third offer on Mouse in the middle of previous two offers", async function () {
     // create offer
-    await avatarSwap.createOffer(testAvatar.address, "Mouse au Chocolat", "1500000000000000000", 6, 5);
+    await avatarSwap.createOffer(testAvatar.address, testOfferData.hotDog, "1500000000000000000", 6, 5);
 
     // get offer
-    const offer = await avatarSwap.getOffer(testAvatar.address, "Mouse au Chocolat", 7);
+    const offer = await avatarSwap.getOffer(testAvatar.address, testOfferData.hotDog, 7);
 
     expect(offer.maker).to.equal(owner.address);
     expect(offer.price).to.equal("1500000000000000000");

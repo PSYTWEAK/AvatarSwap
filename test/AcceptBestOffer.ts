@@ -8,6 +8,7 @@ import { BigNumber } from "ethers";
 const testCollectionData = [
   {
     // collectionAddress: "0x91E51B92a2EfEA89bF1B6f66ad719737264724bE", using contract generated in fixture
+    indexes: [0, 1, 2],
     ranges: [
       [1, 10],
       [11, 20],
@@ -16,6 +17,10 @@ const testCollectionData = [
     avatarTypes: ["Avo Cato", "Hot Dog", "Mouse au Chocolat"],
   },
 ];
+
+const testOfferData = {
+  avoCatoId: 1,
+};
 
 describe("Accept Best Offer", function () {
   // @ts-ignore
@@ -50,22 +55,11 @@ describe("Accept Best Offer", function () {
     await testAvatar.mint(addr1.address, 1, 1);
     await testAvatar.mint(addr1.address, 2, 1);
 
-    await avatarSwap.addCollectionRanges(
-      testAvatar.address,
-      // @ts-ignore
-      testCollectionData[0].ranges
-    );
-    await avatarSwap.addCollectionTypes(
-      testAvatar.address,
-      // @ts-ignore
-      testCollectionData[0].ranges,
-      // @ts-ignore
-      testCollectionData[0].avatarTypes
-    );
+    await avatarSwap.addAvatarTypes(testAvatar.address, testCollectionData[0].indexes, testCollectionData[0].ranges, testCollectionData[0].avatarTypes);
 
-    await avatarSwap.createOffer(testAvatar.address, "Avo Cato", "100000", 0, 0);
-    await avatarSwap.createOffer(testAvatar.address, "Avo Cato", "150000", 0, 1);
-    await avatarSwap.createOffer(testAvatar.address, "Avo Cato", "200000", 0, 2);
+    await avatarSwap.createOffer(testAvatar.address, testOfferData.avoCatoId, "100000", 0, 0);
+    await avatarSwap.createOffer(testAvatar.address, testOfferData.avoCatoId, "150000", 0, 1);
+    await avatarSwap.createOffer(testAvatar.address, testOfferData.avoCatoId, "200000", 0, 2);
 
     unlistedAvatar = await TestAvatar.deploy();
     await unlistedAvatar.deployed();
@@ -77,7 +71,7 @@ describe("Accept Best Offer", function () {
   });
   it("Should fail to accept an unlisted ID", async function () {
     await testAvatar.mint(addr1.address, 400, 1);
-    await expect(testAvatar.connect(addr1).safeTransferFrom(addr1.address, avatarSwap.address, 400, 1, "0x")).to.be.revertedWith("AvatarSwap: Avatar type not found");
+    await expect(testAvatar.connect(addr1).safeTransferFrom(addr1.address, avatarSwap.address, 400, 1, "0x")).to.be.revertedWith("AvatarIdentifier: TokenId not found");
   });
 
   it("Should accept best offer when testAvatar is transfered to AvatarSwap", async function () {
@@ -90,7 +84,7 @@ describe("Accept Best Offer", function () {
     expect(balanceAfter).to.equal(balanceBefore.add(expectedBalanceIncrease.toString()));
   });
   it("Offer 3 should have been deleted", async function () {
-    const offer = await avatarSwap.getOffer(testAvatar.address, "Avo Cato", 3);
+    const offer = await avatarSwap.getOffer(testAvatar.address, testOfferData.avoCatoId, 3);
 
     expect(offer.maker).to.equal("0x0000000000000000000000000000000000000000");
     expect(offer.price).to.equal(0);
@@ -98,7 +92,7 @@ describe("Accept Best Offer", function () {
     expect(offer.above).to.equal(0);
   });
   it("Best offerID should equal 2", async function () {
-    const bestOfferId = await avatarSwap.getBestOfferId(testAvatar.address, "Avo Cato");
+    const bestOfferId = await avatarSwap.getBestOfferId(testAvatar.address, testOfferData.avoCatoId);
     expect(bestOfferId).to.equal(2);
   });
 
@@ -112,7 +106,7 @@ describe("Accept Best Offer", function () {
     expect(balanceAfter).to.equal(balanceBefore.add(expectedBalanceIncrease.toString()));
   });
   it("Offer 2 should have been deleted", async function () {
-    const offer = await avatarSwap.getOffer(testAvatar.address, "Avo Cato", 2);
+    const offer = await avatarSwap.getOffer(testAvatar.address, testOfferData.avoCatoId, 2);
 
     expect(offer.maker).to.equal("0x0000000000000000000000000000000000000000");
     expect(offer.price).to.equal(0);
@@ -120,7 +114,7 @@ describe("Accept Best Offer", function () {
     expect(offer.above).to.equal(0);
   });
   it("Best offerID should equal 1", async function () {
-    const bestOfferId = await avatarSwap.getBestOfferId(testAvatar.address, "Avo Cato");
+    const bestOfferId = await avatarSwap.getBestOfferId(testAvatar.address, testOfferData.avoCatoId);
     expect(bestOfferId).to.equal(1);
   });
 });

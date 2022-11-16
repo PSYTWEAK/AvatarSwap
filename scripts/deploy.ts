@@ -73,16 +73,11 @@ const collectionData = [
 async function main() {
   const AvatarSwap = await ethers.getContractFactory("AvatarSwap");
 
-  const avatarSwap = await AvatarSwap.attach("0xd0870Dd658e5e75b091B23464DBD55De45f8d181");
+  const avatarSwap = await AvatarSwap.deploy("0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619");
+
+  await avatarSwap.deployed();
 
   console.log("AvatarSwap deployed to:", avatarSwap.address);
-
-  for (let i = 0; i < collectionData.length; i++) {
-    await avatarSwap.addCollectionRanges(collectionData[i].collectionAddress, collectionData[i].ranges);
-    await avatarSwap.addCollectionTypes(collectionData[i].collectionAddress, collectionData[i].ranges, collectionData[i].avatarTypes);
-  }
-
-  console.log("Collections added to AvatarSwap");
 }
 
 // We recommend this pattern to be able to use async/await everywhere
