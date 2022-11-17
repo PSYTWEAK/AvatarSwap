@@ -23,7 +23,7 @@ contract WETHPayments {
         IERC20(WETH).transfer(to, amount);
     }
 
-    function _transferWETHFrom(address from, address to, uint256 amount) internal transferWETHCompleted(to, amount) {
+    function _transferWETHFromBuyer(address from, address to, uint256 amount) internal transferWETHCompleted(to, amount) {
         IERC20(WETH).transferFrom(from, to, amount);
     }
 

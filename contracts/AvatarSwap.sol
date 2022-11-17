@@ -19,7 +19,7 @@ contract AvatarSwap is OfferHandler, OfferRouterFactory, AvatarIdentifier, WETHP
     // The offer above and below are used to determine the position of the new offer in the list
     // revert if the offer above and below are not above and below the new offer
     function createOffer(
-        address collectionAddress,
+        address collection,
         uint256 avatarType,
         uint256 price,
         uint256 quantity,
@@ -27,26 +27,28 @@ contract AvatarSwap is OfferHandler, OfferRouterFactory, AvatarIdentifier, WETHP
         uint256 offerBelow
     ) public isTradingOpen {
         require(price > 0, "AvatarSwap: Price must be greater than 0");
-        _transferWETHFrom(msg.sender, address(this), price * quantity);
+        _transferWETHFromBuyer(msg.sender, address(this), price * quantity);
 
         address _offerRouter = createOfferRouter();
 
         _addOffer(
-            CollectionOffer({offerRouter: _offerRouter, maker: msg.sender, quantity: quantity, price: price, above: offerAbove, below: offerBelow}),
-            collectionAddress,
+            CollectionOffer({offerRouter: _offerRouter, buyer: msg.sender, quantity: quantity, price: price, above: offerAbove, below: offerBelow}),
+            collection,
             avatarType
         );
 
 
     }
 
-    function removeOffer(address collectionAddress, uint256 avatarType, uint256 offerId) 
+    function removeOffer(address collection, uint256 avatarType, uint256 offerId) 
         public         
-        isMaker(offerId, collectionAddress, avatarType) {
+        isBuyer(offerId, collection, avatarType) {
 
-        uint256 refund = getOffer(collectionAddress, avatarType, offerId).price;
+        CollectionOffer memory offer = getOffer(collection, avatarType, offerId);
 
-        _removeOffer(offerId, collectionAddress, avatarType);
+        uint256 refund = offer.price * offer.quantity;
+
+        _removeOffer(offerId, collection, avatarType);
 
         _transferWETH(msg.sender, refund);
     }
@@ -68,29 +70,27 @@ contract AvatarSwap is OfferHandler, OfferRouterFactory, AvatarIdentifier, WETHP
         return this.onERC1155BatchReceived.selector;
     }
 
-    function acceptBestOffer(address collectionAddress, address _offerRouter, address sender, uint256 id, uint256 value) public isTradingOpen {
-        _acceptBestOffer(collectionAddress, _offerRouter, sender, id, value);
+    function acceptBestOffer(address collection, address _offerRouter, address sender, uint256 id, uint256 value) public isTradingOpen {
+        _acceptBestOffer(collection, _offerRouter, sender, id, value);
     }
 
-    function _acceptBestOffer(address _collectionAddress, address _offerRouter, address _sender, uint256 _id, uint256 _value)
+    function _acceptBestOffer(address _collection, address _offerRouter, address _sender, uint256 _id, uint256 _value)
         internal
     {
 
-        uint256 avatarType = getAvatarType(_collectionAddress, _id);
-
+        uint256 avatarType = getAvatarType(_collection, _id);
         require(avatarType != 0, "AvatarSwap: Avatar type not found");
 
-        CollectionOffer memory offer = getBestOffer(_collectionAddress, avatarType);
-
+        CollectionOffer memory offer = getBestOffer(_collection, avatarType);
         require(offer.offerRouter == _offerRouter, "AvatarSwap: Incorrect offer router");
 
-        uint256 offerId = getBestOfferId(_collectionAddress, avatarType);
+        uint256 offerId = getBestOfferId(_collection, avatarType);
 
-        _updateOffer(offerId, _collectionAddress, avatarType);
+        _updateOffer(offerId, _collection, avatarType);
 
         _paySeller(_sender, offer.price);
 
-        _payMaker(offer.maker, _collectionAddress, _id, _value);
+        _payBuyer(offer.buyer, _collection, _id, _value);
         
     }
 

@@ -6,16 +6,16 @@ import "hardhat/console.sol";
 contract OfferHandler {
 
     event OfferCreated(
-        uint256 offerId, address indexed maker, address indexed collectionAddress, uint256 avatarType, uint256 price
+        uint256 offerId, address indexed buyer, address indexed collectionAddress, uint256 avatarType, uint256 price, uint256 quantity
     );
 
     event OfferRemoved(
-       uint256 offerId, address indexed maker, address indexed collectionAddress, uint256 avatarType, uint256 price
+       uint256 offerId, address indexed buyer, address indexed collectionAddress, uint256 avatarType, uint256 price
     );
 
     struct CollectionOffer {
         address offerRouter;
-        address maker;
+        address buyer;
         uint256 price;
         uint256 quantity;
         uint256 above;
@@ -79,7 +79,7 @@ contract OfferHandler {
         offers[collection][avatarType][offerId] = collectionOffer;
         offerLists[collection][avatarType].length++;
 
-        emit OfferCreated(offerId, msg.sender, collection, avatarType, collectionOffer.price);
+        emit OfferCreated(offerId, msg.sender, collection, avatarType, collectionOffer.price, collectionOffer.quantity);
     }
 
     function _removeOffer(uint256 offerId, address collection, uint256 avatarType)
@@ -121,8 +121,8 @@ contract OfferHandler {
         }
     }
 
-    modifier isMaker(uint256 offerId, address collection, uint256 avatarType) {
-        require(offers[collection][avatarType][offerId].maker == msg.sender, "OfferHandler: Not the maker of the offer");
+    modifier isBuyer(uint256 offerId, address collection, uint256 avatarType) {
+        require(offers[collection][avatarType][offerId].buyer == msg.sender, "OfferHandler: Not the buyer of the offer");
         _;
     }
 

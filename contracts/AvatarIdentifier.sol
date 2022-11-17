@@ -14,7 +14,7 @@ contract AvatarIdentifier is Ownable {
 
     event AvatarAdded(address collection, string avatarName, uint256 avatarTypeId);
 
-    event AvatarRemoved(address collectionAddress, uint256 internalId);
+    event AvatarRemoved(address collection, uint256 avatarTypeId);
 
     // collection address => index => collection type 
     mapping(address => mapping(uint256 => uint256[])) internal collectionIdRanges;
