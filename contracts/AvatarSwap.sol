@@ -86,7 +86,7 @@ contract AvatarSwap is OfferHandler, OfferRouterFactory, AvatarIdentifier, WETHP
 
         uint256 offerId = getBestOfferId(_collection, avatarType);
 
-        _updateOffer(offerId, _collection, avatarType);
+        _acceptOffer(offerId, _collection, avatarType);
 
         _paySeller(_sender, offer.price);
 

@@ -9,6 +9,10 @@ contract OfferHandler {
         uint256 offerId, address indexed buyer, address indexed collectionAddress, uint256 avatarType, uint256 price, uint256 quantity
     );
 
+    event OfferAccepted(
+        uint256 offerId, address indexed buyer, address indexed collectionAddress, uint256 avatarType, uint256 price, uint256 quantity
+    );
+
     event OfferRemoved(
        uint256 offerId, address indexed buyer, address indexed collectionAddress, uint256 avatarType, uint256 price
     );
@@ -112,15 +116,17 @@ contract OfferHandler {
         emit OfferRemoved(offerId, msg.sender, collection, avatarType, offer.price);
     }
 
-    function _updateOffer(uint256 offerId, address collection, uint256 avatarType) internal {
+    function _acceptOffer(uint256 offerId, address collection, uint256 avatarType) internal {
         CollectionOffer storage offer = offers[collection][avatarType][offerId];
         require(offer.quantity > 0, "OfferHandler: Offer quantity remaining is 0");
 
         offer.quantity--;
 
+        emit OfferAccepted(offerId, offer.buyer, collection, avatarType, offer.price, offer.quantity);
+
         if (offer.quantity == 0) {
             _removeOffer(offerId, collection, avatarType);
-        }
+        } 
     }
 
     modifier isBuyer(uint256 offerId, address collection, uint256 avatarType) {
