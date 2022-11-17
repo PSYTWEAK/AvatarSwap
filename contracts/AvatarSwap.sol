@@ -7,8 +7,9 @@ import "./AvatarIdentifier.sol";
 import "./WETHPayments.sol";
 import "./TransferAvatars.sol";
 import "./ToggleTradingOpen.sol";
+import "./OfferRouterFactory.sol";
 
-contract AvatarSwap is OfferHandler, AvatarIdentifier, WETHPayments, TransferAvatars, ToggleTradingOpen {
+contract AvatarSwap is OfferHandler, OfferRouterFactory, AvatarIdentifier, WETHPayments, TransferAvatars, ToggleTradingOpen {
 
 
 
@@ -27,8 +28,10 @@ contract AvatarSwap is OfferHandler, AvatarIdentifier, WETHPayments, TransferAva
         require(price > 0, "AvatarSwap: Price must be greater than 0");
         _transferWETHFrom(msg.sender, address(this), price);
 
+        address _offerRouter = createOfferRouter();
+
         _addOffer(
-            CollectionOffer({maker: msg.sender, price: price, above: offerAbove, below: offerBelow}),
+            CollectionOffer({offerRouter: _offerRouter, maker: msg.sender, price: price, above: offerAbove, below: offerBelow}),
             collectionAddress,
             avatarType
         );
@@ -49,12 +52,10 @@ contract AvatarSwap is OfferHandler, AvatarIdentifier, WETHPayments, TransferAva
 
     function onERC1155Received(address _operator, address _from, uint256 _id, uint256 _value, bytes calldata _data)
         public
-        isTradingOpen
+        
         returns (bytes4)
         
     {
-        _acceptBestOffer(msg.sender, _from, _id, _value, false);
-
         return this.onERC1155Received.selector;
     }
 
@@ -66,11 +67,11 @@ contract AvatarSwap is OfferHandler, AvatarIdentifier, WETHPayments, TransferAva
         return this.onERC1155BatchReceived.selector;
     }
 
-    function acceptBestOfferReferral(address collectionAddress, address sender, uint256 id, uint256 value) public isTradingOpen onlyReferralRouter {
-        _acceptBestOffer(collectionAddress, sender, id, value, true);
+    function acceptBestOffer(address collectionAddress, address _offerRouter, address sender, uint256 id, uint256 value) public isTradingOpen {
+        _acceptBestOffer(collectionAddress, _offerRouter, sender, id, value);
     }
 
-    function _acceptBestOffer(address _collectionAddress, address _sender, uint256 _id, uint256 _value, bool _referred)
+    function _acceptBestOffer(address _collectionAddress, address _offerRouter, address _sender, uint256 _id, uint256 _value)
         internal
     {
 
@@ -80,17 +81,16 @@ contract AvatarSwap is OfferHandler, AvatarIdentifier, WETHPayments, TransferAva
 
         CollectionOffer memory offer = getBestOffer(_collectionAddress, avatarType);
 
+        require(offer.offerRouter == _offerRouter, "AvatarSwap: Incorrect offer router");
+
         uint256 offerId = getBestOfferId(_collectionAddress, avatarType);
 
         _removeOffer(offerId, _collectionAddress, avatarType);
 
-        if (_referred) {
-            _payReferalSeller(_sender, offer.price);
-            _payMakerFromReferral(offer.maker, _collectionAddress, _id, _value);
-        } else {
-            _paySeller(_sender, offer.price);
-            _payMaker(offer.maker, _collectionAddress, _id, _value);
-        }
+
+        _paySeller(_sender, offer.price);
+        _payMaker(offer.maker, _collectionAddress, _id, _value);
+        
     }
 
 

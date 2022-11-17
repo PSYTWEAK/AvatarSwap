@@ -3,9 +3,8 @@ pragma solidity ^0.8.9;
 
 import "hardhat/console.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "./ReferrerManagement.sol";
 
-contract WETHPayments is ReferrerManagement {
+contract WETHPayments {
     address public WETH;
     address immutable feeWallet = 0xe51B242853126C4DaB6a08FddE0CAEa122EB9Dd7;
 
@@ -17,13 +16,6 @@ contract WETHPayments is ReferrerManagement {
         uint256 basicFee = price / 25;
         uint256 newPrice = price - basicFee;
         _transferWETH(feeWallet, basicFee);
-        _transferWETH(to, newPrice);
-    }
-
-    function _payReferalSeller(address to, uint256 price) internal {
-        uint256 referrerFee = price / 50;
-        uint256 newPrice = price - referrerFee;
-        _transferWETH(getReferrer(msg.sender), referrerFee);
         _transferWETH(to, newPrice);
     }
 

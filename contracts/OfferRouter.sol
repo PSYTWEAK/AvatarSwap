@@ -5,11 +5,13 @@ import "hardhat/console.sol";
 import "./IAvatarSwap.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 
-contract ReferralRouter {
+contract OfferRouter {
     IAvatarSwap avatarSwap;
+    bool public offerOpen;
 
     constructor(address _avatarSwap) {
         avatarSwap = IAvatarSwap(_avatarSwap);
+        offerOpen = true;
     }
 
     function onERC1155Received(address _operator, address _from, uint256 _id, uint256 _value, bytes calldata _data)
@@ -17,7 +19,11 @@ contract ReferralRouter {
         approveAvatarSwap
         returns (bytes4)
     {        
-        avatarSwap.acceptBestOfferReferral(msg.sender, _from, _id, _value); 
+        require(offerOpen, "OfferRouter: This offer has already been accepted");
+        offerOpen = false;
+
+        avatarSwap.acceptBestOffer(msg.sender, address(this), _from, _id, _value); 
+
         return this.onERC1155Received.selector;
     }
 

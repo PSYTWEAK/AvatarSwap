@@ -14,6 +14,7 @@ contract OfferHandler {
     );
 
     struct CollectionOffer {
+        address offerRouter;
         address maker;
         uint256 price;
         uint256 above;
