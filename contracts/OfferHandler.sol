@@ -14,7 +14,7 @@ contract OfferHandler {
     );
 
     struct CollectionOffer {
-        address offerRouter;
+        address router;
         address buyer;
         uint256 price;
         uint256 quantity;
@@ -114,10 +114,12 @@ contract OfferHandler {
 
     function _updateOffer(uint256 offerId, address collection, uint256 avatarType) internal {
         CollectionOffer storage offer = offers[collection][avatarType][offerId];
+        require(offer.quantity > 0, "OfferHandler: Offer quantity remaining is 0");
+
+        offer.quantity--;
+
         if (offer.quantity == 0) {
             _removeOffer(offerId, collection, avatarType);
-        } else {
-            offer.quantity--;
         }
     }
 

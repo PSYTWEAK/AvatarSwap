@@ -7,8 +7,8 @@ import "./OfferRouter.sol";
 
 contract OfferRouterFactory {
 
-    function createOfferRouter() internal returns (address) {
-        OfferRouter offerRouter = new OfferRouter(address(this));
+    function createOfferRouter(uint _quantity) internal returns (address) {
+        OfferRouter offerRouter = new OfferRouter(address(this), _quantity);
         return address(offerRouter);
     }
 }

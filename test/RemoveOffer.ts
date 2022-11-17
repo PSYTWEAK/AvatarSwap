@@ -62,9 +62,9 @@ describe("Remove Offer", function () {
 
     await avatarSwap.addAvatarTypes(testAvatar.address, testCollectionData[0].indexes, testCollectionData[0].ranges, testCollectionData[0].avatarTypes);
 
-    await avatarSwap.createOffer(testAvatar.address, testOfferData.avoCatoId, "100000", 0, 0);
-    await avatarSwap.createOffer(testAvatar.address, testOfferData.avoCatoId, "150000", 0, 1);
-    await avatarSwap.createOffer(testAvatar.address, testOfferData.avoCatoId, "200000", 0, 2);
+    await avatarSwap.createOffer(testAvatar.address, testOfferData.avoCatoId, "100000", 1, 0, 0);
+    await avatarSwap.createOffer(testAvatar.address, testOfferData.avoCatoId, "150000", 1, 0, 1);
+    await avatarSwap.createOffer(testAvatar.address, testOfferData.avoCatoId, "200000", 1, 0, 2);
   });
 
   it("Should remove offerid 1 in Avo Cato", async function () {
@@ -74,7 +74,7 @@ describe("Remove Offer", function () {
 
     const offer = await avatarSwap.getOffer(testAvatar.address, testOfferData.avoCatoId, 1);
 
-    expect(offer.maker).to.equal("0x0000000000000000000000000000000000000000");
+    expect(offer.buyer).to.equal("0x0000000000000000000000000000000000000000");
     expect(offer.price).to.equal(0);
     expect(offer.below).to.equal(0);
     expect(offer.above).to.equal(0);
@@ -91,7 +91,7 @@ describe("Remove Offer", function () {
 
     const offer = await avatarSwap.getOffer(testAvatar.address, testOfferData.avoCatoId, 3);
 
-    expect(offer.maker).to.equal("0x0000000000000000000000000000000000000000");
+    expect(offer.buyer).to.equal("0x0000000000000000000000000000000000000000");
     expect(offer.price).to.equal(0);
     expect(offer.below).to.equal(0);
     expect(offer.above).to.equal(0);
@@ -108,7 +108,7 @@ describe("Remove Offer", function () {
 
     const offer = await avatarSwap.getOffer(testAvatar.address, testOfferData.avoCatoId, 2);
 
-    expect(offer.maker).to.equal("0x0000000000000000000000000000000000000000");
+    expect(offer.buyer).to.equal("0x0000000000000000000000000000000000000000");
     expect(offer.price).to.equal(0);
     expect(offer.below).to.equal(0);
     expect(offer.above).to.equal(0);
@@ -119,12 +119,12 @@ describe("Remove Offer", function () {
     expect(bestOfferId).to.equal(0);
   });
   it("Should fail to remove an offerid 1 again in Avo Cato", async function () {
-    await expect(avatarSwap.removeOffer(testAvatar.address, testOfferData.avoCatoId, 3)).to.be.revertedWith("OfferHandler: Not the maker of the offer");
+    await expect(avatarSwap.removeOffer(testAvatar.address, testOfferData.avoCatoId, 3)).to.be.revertedWith("OfferHandler: Not the buyer of the offer");
   });
   it("Should fail to remove an offerid 2 again in Avo Cato", async function () {
-    await expect(avatarSwap.removeOffer(testAvatar.address, testOfferData.avoCatoId, 3)).to.be.revertedWith("OfferHandler: Not the maker of the offer");
+    await expect(avatarSwap.removeOffer(testAvatar.address, testOfferData.avoCatoId, 3)).to.be.revertedWith("OfferHandler: Not the buyer of the offer");
   });
   it("Should fail to remove an offerid 3 again in non existent collection", async function () {
-    await expect(avatarSwap.removeOffer(testAvatar.address, 1, 3)).to.be.revertedWith("OfferHandler: Not the maker of the offer");
+    await expect(avatarSwap.removeOffer(testAvatar.address, 1, 3)).to.be.revertedWith("OfferHandler: Not the buyer of the offer");
   });
 });

@@ -29,10 +29,10 @@ contract AvatarSwap is OfferHandler, OfferRouterFactory, AvatarIdentifier, WETHP
         require(price > 0, "AvatarSwap: Price must be greater than 0");
         _transferWETHFromBuyer(msg.sender, address(this), price * quantity);
 
-        address _offerRouter = createOfferRouter();
+        address _router = createOfferRouter(quantity);
 
         _addOffer(
-            CollectionOffer({offerRouter: _offerRouter, buyer: msg.sender, quantity: quantity, price: price, above: offerAbove, below: offerBelow}),
+            CollectionOffer({router: _router, buyer: msg.sender, quantity: quantity, price: price, above: offerAbove, below: offerBelow}),
             collection,
             avatarType
         );
@@ -70,11 +70,11 @@ contract AvatarSwap is OfferHandler, OfferRouterFactory, AvatarIdentifier, WETHP
         return this.onERC1155BatchReceived.selector;
     }
 
-    function acceptBestOffer(address collection, address _offerRouter, address sender, uint256 id, uint256 value) public isTradingOpen {
-        _acceptBestOffer(collection, _offerRouter, sender, id, value);
+    function acceptBestOffer(address collection, address sender, uint256 id, uint256 value) public isTradingOpen {
+        _acceptBestOffer(collection, sender, id, value);
     }
 
-    function _acceptBestOffer(address _collection, address _offerRouter, address _sender, uint256 _id, uint256 _value)
+    function _acceptBestOffer(address _collection, address _sender, uint256 _id, uint256 _value)
         internal
     {
 
@@ -82,7 +82,7 @@ contract AvatarSwap is OfferHandler, OfferRouterFactory, AvatarIdentifier, WETHP
         require(avatarType != 0, "AvatarSwap: Avatar type not found");
 
         CollectionOffer memory offer = getBestOffer(_collection, avatarType);
-        require(offer.offerRouter == _offerRouter, "AvatarSwap: Incorrect offer router");
+        require(offer.router == msg.sender, "AvatarSwap: Incorrect offer router");
 
         uint256 offerId = getBestOfferId(_collection, avatarType);
 

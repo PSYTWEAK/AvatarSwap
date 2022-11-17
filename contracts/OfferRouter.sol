@@ -31,9 +31,7 @@ contract OfferRouter {
             offerOpen = false;
         }
 
-        offerOpen = false;
-
-        avatarSwap.acceptBestOffer(msg.sender, address(this), _from, _id, _value); 
+        avatarSwap.acceptBestOffer(msg.sender, _from, _id, _value); 
 
         return this.onERC1155Received.selector;
     }

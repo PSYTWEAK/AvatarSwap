@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 
 contract TransferAvatars {
     function _payBuyer(address to, address collection, uint256 id, uint256 value) internal {
-        _transferAvatar(address(this), to, collection, id, value);
+        _transferAvatar(msg.sender, to, collection, id, value);
     }
 
     function _transferAvatar(address from, address to, address collection, uint256 id, uint256 value)

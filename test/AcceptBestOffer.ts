@@ -53,13 +53,13 @@ describe("Accept Best Offer", function () {
     // Mint ERC1155 tokens
     // @ts-ignore
     await testAvatar.mint(addr1.address, 1, 1);
-    await testAvatar.mint(addr1.address, 2, 1);
+    await testAvatar.mint(addr1.address, 2, 10);
 
     await avatarSwap.addAvatarTypes(testAvatar.address, testCollectionData[0].indexes, testCollectionData[0].ranges, testCollectionData[0].avatarTypes);
 
-    await avatarSwap.createOffer(testAvatar.address, testOfferData.avoCatoId, "100000", 0, 0);
-    await avatarSwap.createOffer(testAvatar.address, testOfferData.avoCatoId, "150000", 0, 1);
-    await avatarSwap.createOffer(testAvatar.address, testOfferData.avoCatoId, "200000", 0, 2);
+    await avatarSwap.createOffer(testAvatar.address, testOfferData.avoCatoId, "100000", 6, 0, 0);
+    await avatarSwap.createOffer(testAvatar.address, testOfferData.avoCatoId, "150000", 1, 0, 1);
+    await avatarSwap.createOffer(testAvatar.address, testOfferData.avoCatoId, "200000", 1, 0, 2);
 
     unlistedAvatar = await TestAvatar.deploy();
     await unlistedAvatar.deployed();
@@ -67,18 +67,24 @@ describe("Accept Best Offer", function () {
   });
 
   it("Should fail to accept any unlistedAvatar", async function () {
-    await expect(unlistedAvatar.connect(addr1).safeTransferFrom(addr1.address, avatarSwap.address, 1, 1, "0x")).to.be.revertedWith("ERC1155: transfer to non ERC1155Receiver implementer");
+    const bestOffer = await avatarSwap.getBestOffer(testAvatar.address, testOfferData.avoCatoId);
+    await expect(unlistedAvatar.connect(addr1).safeTransferFrom(addr1.address, bestOffer.router, 1, 1, "0x")).to.be.revertedWith("ERC1155: transfer to non ERC1155Receiver implementer");
   });
   it("Should fail to accept an unlisted ID", async function () {
+    const bestOffer = await avatarSwap.getBestOffer(testAvatar.address, testOfferData.avoCatoId);
+
     await testAvatar.mint(addr1.address, 400, 1);
-    await expect(testAvatar.connect(addr1).safeTransferFrom(addr1.address, avatarSwap.address, 400, 1, "0x")).to.be.revertedWith("AvatarIdentifier: TokenId not found");
+
+    await expect(testAvatar.connect(addr1).safeTransferFrom(addr1.address, bestOffer.router, 400, 1, "0x")).to.be.revertedWith("AvatarIdentifier: TokenId not found");
   });
 
   it("Should accept best offer when testAvatar is transfered to AvatarSwap", async function () {
+    const bestOffer = await avatarSwap.getBestOffer(testAvatar.address, testOfferData.avoCatoId);
+
     let balanceBefore = await testWETH.balanceOf(addr1.address);
-    // transfer id 2 of testAvatar to AvatarSwap
-    await testAvatar.connect(addr1).safeTransferFrom(addr1.address, avatarSwap.address, 1, 1, "0x");
+    await testAvatar.connect(addr1).safeTransferFrom(addr1.address, bestOffer.router, 1, 1, "0x");
     let balanceAfter = await testWETH.balanceOf(addr1.address);
+
     let expectedBalanceIncrease = 200000 - 200000 / 25;
 
     expect(balanceAfter).to.equal(balanceBefore.add(expectedBalanceIncrease.toString()));
@@ -86,7 +92,7 @@ describe("Accept Best Offer", function () {
   it("Offer 3 should have been deleted", async function () {
     const offer = await avatarSwap.getOffer(testAvatar.address, testOfferData.avoCatoId, 3);
 
-    expect(offer.maker).to.equal("0x0000000000000000000000000000000000000000");
+    expect(offer.buyer).to.equal("0x0000000000000000000000000000000000000000");
     expect(offer.price).to.equal(0);
     expect(offer.below).to.equal(0);
     expect(offer.above).to.equal(0);
@@ -97,10 +103,12 @@ describe("Accept Best Offer", function () {
   });
 
   it("Should accept best offer when testAvatar is transfered to AvatarSwap", async function () {
+    const bestOffer = await avatarSwap.getBestOffer(testAvatar.address, testOfferData.avoCatoId);
+
     let balanceBefore = await testWETH.balanceOf(addr1.address);
-    // transfer id 2 of testAvatar to AvatarSwap
-    await testAvatar.connect(addr1).safeTransferFrom(addr1.address, avatarSwap.address, 2, 1, "0x");
+    await testAvatar.connect(addr1).safeTransferFrom(addr1.address, bestOffer.router, 2, 1, "0x");
     let balanceAfter = await testWETH.balanceOf(addr1.address);
+
     let expectedBalanceIncrease = 150000 - 150000 / 25;
 
     expect(balanceAfter).to.equal(balanceBefore.add(expectedBalanceIncrease.toString()));
@@ -108,7 +116,7 @@ describe("Accept Best Offer", function () {
   it("Offer 2 should have been deleted", async function () {
     const offer = await avatarSwap.getOffer(testAvatar.address, testOfferData.avoCatoId, 2);
 
-    expect(offer.maker).to.equal("0x0000000000000000000000000000000000000000");
+    expect(offer.buyer).to.equal("0x0000000000000000000000000000000000000000");
     expect(offer.price).to.equal(0);
     expect(offer.below).to.equal(0);
     expect(offer.above).to.equal(0);
@@ -116,5 +124,38 @@ describe("Accept Best Offer", function () {
   it("Best offerID should equal 1", async function () {
     const bestOfferId = await avatarSwap.getBestOfferId(testAvatar.address, testOfferData.avoCatoId);
     expect(bestOfferId).to.equal(1);
+  });
+  it("Should accept best offer when testAvatar is transfered to AvatarSwap", async function () {
+    const bestOffer = await avatarSwap.getBestOffer(testAvatar.address, testOfferData.avoCatoId);
+
+    let balanceBefore = await testWETH.balanceOf(addr1.address);
+    await testAvatar.connect(addr1).safeTransferFrom(addr1.address, bestOffer.router, 2, 1, "0x");
+    let balanceAfter = await testWETH.balanceOf(addr1.address);
+
+    let expectedBalanceIncrease = 100000 - 100000 / 25;
+
+    expect(balanceAfter).to.equal(balanceBefore.add(expectedBalanceIncrease.toString()));
+  });
+  it("Should accept best offer when testAvatar is transfered to AvatarSwap", async function () {
+    const bestOffer = await avatarSwap.getBestOffer(testAvatar.address, testOfferData.avoCatoId);
+
+    let balanceBefore = await testWETH.balanceOf(addr1.address);
+    await testAvatar.connect(addr1).safeTransferFrom(addr1.address, bestOffer.router, 2, 1, "0x");
+    let balanceAfter = await testWETH.balanceOf(addr1.address);
+
+    let expectedBalanceIncrease = 100000 - 100000 / 25;
+
+    expect(balanceAfter).to.equal(balanceBefore.add(expectedBalanceIncrease.toString()));
+  });
+  it("Should accept best offer when testAvatar is transfered to AvatarSwap", async function () {
+    const bestOffer = await avatarSwap.getBestOffer(testAvatar.address, testOfferData.avoCatoId);
+
+    let balanceBefore = await testWETH.balanceOf(addr1.address);
+    await testAvatar.connect(addr1).safeTransferFrom(addr1.address, bestOffer.router, 2, 1, "0x");
+    let balanceAfter = await testWETH.balanceOf(addr1.address);
+
+    let expectedBalanceIncrease = 100000 - 100000 / 25;
+
+    expect(balanceAfter).to.equal(balanceBefore.add(expectedBalanceIncrease.toString()));
   });
 });

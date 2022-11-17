@@ -5,5 +5,5 @@ import "hardhat/console.sol";
 
 // an interface for ReferalReceiver to interact with AvatarSwap
 interface IAvatarSwap {
-    function acceptBestOffer(address collectionAddress, address _offerRouter, address sender, uint256 id, uint256 value) external;
+    function acceptBestOffer(address collectionAddress, address sender, uint256 id, uint256 value) external;
 }
