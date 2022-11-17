@@ -7,10 +7,14 @@ import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 
 contract OfferRouter {
     IAvatarSwap avatarSwap;
+
+    uint256 public offerQuantity;
+
     bool public offerOpen;
 
-    constructor(address _avatarSwap) {
+    constructor(address _avatarSwap, uint256 _offerQuantity) {
         avatarSwap = IAvatarSwap(_avatarSwap);
+        offerQuantity = _offerQuantity;
         offerOpen = true;
     }
 
@@ -20,6 +24,13 @@ contract OfferRouter {
         returns (bytes4)
     {        
         require(offerOpen, "OfferRouter: This offer has already been accepted");
+
+        offerQuantity -= 1;
+
+        if (offerQuantity == 0) {
+            offerOpen = false;
+        }
+
         offerOpen = false;
 
         avatarSwap.acceptBestOffer(msg.sender, address(this), _from, _id, _value); 

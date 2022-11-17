@@ -22,16 +22,17 @@ contract AvatarSwap is OfferHandler, OfferRouterFactory, AvatarIdentifier, WETHP
         address collectionAddress,
         uint256 avatarType,
         uint256 price,
+        uint256 quantity,
         uint256 offerAbove,
         uint256 offerBelow
     ) public isTradingOpen {
         require(price > 0, "AvatarSwap: Price must be greater than 0");
-        _transferWETHFrom(msg.sender, address(this), price);
+        _transferWETHFrom(msg.sender, address(this), price * quantity);
 
         address _offerRouter = createOfferRouter();
 
         _addOffer(
-            CollectionOffer({offerRouter: _offerRouter, maker: msg.sender, price: price, above: offerAbove, below: offerBelow}),
+            CollectionOffer({offerRouter: _offerRouter, maker: msg.sender, quantity: quantity, price: price, above: offerAbove, below: offerBelow}),
             collectionAddress,
             avatarType
         );
@@ -85,10 +86,10 @@ contract AvatarSwap is OfferHandler, OfferRouterFactory, AvatarIdentifier, WETHP
 
         uint256 offerId = getBestOfferId(_collectionAddress, avatarType);
 
-        _removeOffer(offerId, _collectionAddress, avatarType);
-
+        _updateOffer(offerId, _collectionAddress, avatarType);
 
         _paySeller(_sender, offer.price);
+
         _payMaker(offer.maker, _collectionAddress, _id, _value);
         
     }

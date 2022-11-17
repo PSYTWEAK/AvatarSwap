@@ -17,6 +17,7 @@ contract OfferHandler {
         address offerRouter;
         address maker;
         uint256 price;
+        uint256 quantity;
         uint256 above;
         uint256 below;
     }
@@ -109,6 +110,15 @@ contract OfferHandler {
         offerLists[collection][avatarType].length--;
 
         emit OfferRemoved(offerId, msg.sender, collection, avatarType, offer.price);
+    }
+
+    function _updateOffer(uint256 offerId, address collection, uint256 avatarType) internal {
+        CollectionOffer storage offer = offers[collection][avatarType][offerId];
+        if (offer.quantity == 0) {
+            _removeOffer(offerId, collection, avatarType);
+        } else {
+            offer.quantity--;
+        }
     }
 
     modifier isMaker(uint256 offerId, address collection, uint256 avatarType) {
