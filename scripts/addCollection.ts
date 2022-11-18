@@ -50,7 +50,7 @@ const collectionData = [
 async function main() {
   const AvatarSwap = await ethers.getContractFactory("AvatarSwap");
 
-  const avatarSwap = await AvatarSwap.attach("0x4eAc5B5f1baBc74Eb1B6fE9f369F9cAB56F9b992");
+  const avatarSwap = await AvatarSwap.attach("0xF5284D4777c96A81CEd939203E6cBEf1ce3A501d");
 
   console.log("AvatarSwap attached:", avatarSwap.address);
 

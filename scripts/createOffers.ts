@@ -1,7 +1,8 @@
 import { ethers } from "hardhat";
-// @ts-ignore
+
 const collectionData = [
   {
+    indexes: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29],
     collectionAddress: "0x622d8FeA4603BA9EdAF1084B407052D8b0A9bed7",
     ranges: [
       [0, 200099],
@@ -75,11 +76,29 @@ const WETH_POLYGON = "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619";
 async function main() {
   const AvatarSwap = await ethers.getContractFactory("AvatarSwap");
 
-  const avatarSwap = await AvatarSwap.deploy(WETH_POLYGON);
+  const avatarSwap = await AvatarSwap.attach("0xF5284D4777c96A81CEd939203E6cBEf1ce3A501d");
 
-  await avatarSwap.deployed();
+  console.log("AvatarSwap attached:", avatarSwap.address);
 
-  console.log("AvatarSwap deployed to:", avatarSwap.address);
+  const WETH = await ethers.getContractFactory("TestERC20");
+
+  const weth = await WETH.attach(WETH_POLYGON);
+
+  let avatarId = 1;
+
+  for (let i = 0; i < collectionData[0].avatarTypes.length; i++) {
+    const collection = collectionData[0];
+    try {
+      await avatarSwap.createOffer(collection.collectionAddress, avatarId, "11000", 1, 0, 0, { maxFeePerGas: "150000000002", maxPriorityFeePerGas: "60000000002" });
+      await avatarSwap.createOffer(collection.collectionAddress, avatarId, "15100", 1, 0, 1, { maxFeePerGas: "150000000002", maxPriorityFeePerGas: "60000000002" });
+      await avatarSwap.createOffer(collection.collectionAddress, avatarId, "21000", 1, 0, 2, { maxFeePerGas: "150000000002", maxPriorityFeePerGas: "60000000002" });
+    } catch (e) {
+      console.log(e);
+    }
+
+    console.log("Avatar offers on", avatarId);
+    avatarId++;
+  }
 }
 
 // We recommend this pattern to be able to use async/await everywhere
