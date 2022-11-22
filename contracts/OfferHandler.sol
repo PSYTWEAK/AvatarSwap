@@ -10,7 +10,7 @@ contract OfferHandler {
     );
 
     event OfferAccepted(
-        uint256 offerId, address indexed buyer, address indexed collectionAddress, uint256 avatarType, uint256 price, uint256 quantity
+        uint256 offerId, address indexed buyer, address indexed collectionAddress, uint256 avatarType, uint256 price, uint256 quantityRemaining
     );
 
     event OfferRemoved(

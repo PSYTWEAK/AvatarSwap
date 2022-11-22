@@ -26,35 +26,57 @@ contract AvatarIdentifier is Ownable {
 
     uint256 internalIdCounter = 0;
 
-    function addAvatarTypes(address collection, uint256[] memory indexes, uint256[][] memory ranges, string[] memory avatarName) public onlyOwner {
-        require(indexes.length == ranges.length, "AvatarIdentifier: Indexes and ranges must be the same length");
+    function addAvatarTypes(address collection, uint256[][] memory ranges, string[] memory avatarName) public onlyOwner {
+        uint indexStart = numAvatarTypes[collection];
 
-        for (uint256 i = 0; i < indexes.length; i++) {
-            if (indexes[i] > 0 && ranges[i][0] < collectionIdRanges[collection][indexes[i] - 1][1]) {
+        for (uint256 i = indexStart; i < ranges.length; i++) {
+            if (i > 0 && ranges[i][0] < collectionIdRanges[collection][i - 1][1]) {
 
             revert("AvatarIdentifier: Indexes must be in ascending order");
             }
-            require(collectionIdRanges[collection][indexes[i]].length == 0, "AvatarIdentifier: Index already exists");
+            require(collectionIdRanges[collection][i].length == 0, "AvatarIdentifier: Index already exists");
             require(ranges[i].length == 2, "AvatarIdentifier: Range must be 2 numbers");
 
-            collectionIdRanges[collection][indexes[i]] = ranges[i];
+            collectionIdRanges[collection][i] = ranges[i];
 
             internalIdCounter++;
-            avatarTypeId[collection][indexes[i]] = internalIdCounter;
+            avatarTypeId[collection][i] = internalIdCounter;
+
+            numAvatarTypes[collection] += 1;
 
             emit AvatarAdded(collection, avatarName[i], internalIdCounter);
         }
-        numAvatarTypes[collection] += indexes.length;
     }
 
-    function removeAvatarTypes(address collection, uint256[] memory indexes) public onlyOwner {
-        for (uint256 i = 0; i < indexes.length; i++) {
-            delete collectionIdRanges[collection][indexes[i]];
-            delete avatarTypeId[collection][indexes[i]];
+    function removeAvatarTypes(address collection, uint256 numRemove) public onlyOwner {
+        uint indexStart = numAvatarTypes[collection];
 
-            emit AvatarRemoved(collection, avatarTypeId[collection][indexes[i]]);
+        for (uint256 i = indexStart; i < numRemove; i--) {
+            delete collectionIdRanges[collection][i];
+            delete avatarTypeId[collection][i];
+
+            numAvatarTypes[collection] -= 1;
+            emit AvatarRemoved(collection, avatarTypeId[collection][i]);
         }
-        numAvatarTypes[collection] -= indexes.length;
+      
+    }
+
+    function getIndex(address collection, uint256 tokenId) public view returns (uint256) {
+        // binary search to find the index of the avatar type
+        uint256 min = 0;
+        uint256 max = numAvatarTypes[collection] - 1;
+        uint256 mid;
+        while (min <= max) {
+            mid = (min + max) / 2;
+            if (collectionIdRanges[collection][mid][0] <= tokenId && collectionIdRanges[collection][mid][1] >= tokenId) {
+                return mid;
+            } else if (collectionIdRanges[collection][mid][0] > tokenId) {
+                max = mid - 1;
+            } else {
+                min = mid + 1;
+            }
+        }
+        revert("AvatarIdentifier: TokenId not found");
     }
 
     function getAvatarType(address collection, uint256 tokenId) public view returns (uint256) {

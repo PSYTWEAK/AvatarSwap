@@ -55,7 +55,7 @@ describe("Accept Best Offer", function () {
     await testAvatar.mint(addr1.address, 1, 1);
     await testAvatar.mint(addr1.address, 2, 10);
 
-    await avatarSwap.addAvatarTypes(testAvatar.address, testCollectionData[0].indexes, testCollectionData[0].ranges, testCollectionData[0].avatarTypes);
+    await avatarSwap.addAvatarTypes(testAvatar.address, testCollectionData[0].ranges, testCollectionData[0].avatarTypes);
 
     await avatarSwap.createOffer(testAvatar.address, testOfferData.avoCatoId, "100000", 6, 0, 0);
     await avatarSwap.createOffer(testAvatar.address, testOfferData.avoCatoId, "150000", 1, 0, 1);

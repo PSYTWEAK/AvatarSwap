@@ -76,7 +76,7 @@ const WETH_POLYGON = "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619";
 async function main() {
   const AvatarSwap = await ethers.getContractFactory("AvatarSwap");
 
-  const avatarSwap = await AvatarSwap.attach("0xF5284D4777c96A81CEd939203E6cBEf1ce3A501d");
+  const avatarSwap = await AvatarSwap.attach("0x43c14639Ca19DedD4a7668F3346667d943f02570");
 
   console.log("AvatarSwap attached:", avatarSwap.address);
 
@@ -84,14 +84,21 @@ async function main() {
 
   const weth = await WETH.attach(WETH_POLYGON);
 
-  let avatarId = 1;
+  let nonce = 140;
+
+  let avatarId = 5;
+
+  // get nonce from ethers js
 
   for (let i = 0; i < collectionData[0].avatarTypes.length; i++) {
     const collection = collectionData[0];
     try {
-      await avatarSwap.createOffer(collection.collectionAddress, avatarId, "11000", 1, 0, 0, { maxFeePerGas: "150000000002", maxPriorityFeePerGas: "60000000002" });
-      await avatarSwap.createOffer(collection.collectionAddress, avatarId, "15100", 1, 0, 1, { maxFeePerGas: "150000000002", maxPriorityFeePerGas: "60000000002" });
-      await avatarSwap.createOffer(collection.collectionAddress, avatarId, "21000", 1, 0, 2, { maxFeePerGas: "150000000002", maxPriorityFeePerGas: "60000000002" });
+      await avatarSwap.createOffer(collection.collectionAddress, avatarId, "11000", 1, 0, 0, { gasLimit: 800000, nonce: nonce, maxFeePerGas: "200000000000" });
+      nonce++;
+      await avatarSwap.createOffer(collection.collectionAddress, avatarId, "15100", 1, 0, 1, { gasLimit: 800000, nonce: nonce, maxFeePerGas: "200000000000" });
+      nonce++;
+      await avatarSwap.createOffer(collection.collectionAddress, avatarId, "21000", 1, 0, 2, { gasLimit: 800000, nonce: nonce, maxFeePerGas: "200000000000" });
+      nonce++;
     } catch (e) {
       console.log(e);
     }
