@@ -25,7 +25,7 @@ contract AvatarSwap is OfferHandler, OfferRouterFactory, AvatarIdentifier, WETHP
         uint256 quantity,
         uint256 offerAbove,
         uint256 offerBelow
-    ) public isTradingOpen {
+    ) public isTradingOpen isValidType(avatarType) {
         require(price > 0, "AvatarSwap: Price must be greater than 0");
         _transferWETHFromBuyer(msg.sender, address(this), price * quantity);
 

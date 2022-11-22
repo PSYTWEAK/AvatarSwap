@@ -84,28 +84,15 @@ async function main() {
 
   const weth = await WETH.attach(WETH_POLYGON);
 
-  let nonce = 140;
-
   let avatarId = 5;
 
-  // get nonce from ethers js
+  const collection = collectionData[0];
 
-  for (let i = 0; i < collectionData[0].avatarTypes.length; i++) {
-    const collection = collectionData[0];
-    try {
-      await avatarSwap.createOffer(collection.collectionAddress, avatarId, "11000", 1, 0, 0, { gasLimit: 800000, nonce: nonce, maxFeePerGas: "200000000000" });
-      nonce++;
-      await avatarSwap.createOffer(collection.collectionAddress, avatarId, "15100", 1, 0, 1, { gasLimit: 800000, nonce: nonce, maxFeePerGas: "200000000000" });
-      nonce++;
-      await avatarSwap.createOffer(collection.collectionAddress, avatarId, "21000", 1, 0, 2, { gasLimit: 800000, nonce: nonce, maxFeePerGas: "200000000000" });
-      nonce++;
-    } catch (e) {
-      console.log(e);
-    }
+  await avatarSwap.createOffer(collection.collectionAddress, avatarId, "11000", 1, 0, 0);
+  await avatarSwap.createOffer(collection.collectionAddress, avatarId, "15100", 1, 0, 1);
+  await avatarSwap.createOffer(collection.collectionAddress, avatarId, "21000", 1, 0, 2);
 
-    console.log("Avatar offers on", avatarId);
-    avatarId++;
-  }
+  console.log("Avatar offers on", avatarId);
 }
 
 // We recommend this pattern to be able to use async/await everywhere

@@ -20,6 +20,8 @@ contract AvatarIdentifier is Ownable {
     mapping(address => mapping(uint256 => uint256[])) internal collectionIdRanges;
     // collection address => index => internal avatar type identifier
     mapping(address => mapping(uint256 => uint256)) internal avatarTypeId;
+    // avatar type identifier => bool 
+    mapping(uint256 => bool) internal avatarTypeExists;
     // collection address => avatar type
     mapping(address => uint256) internal numAvatarTypes;
 
@@ -41,6 +43,7 @@ contract AvatarIdentifier is Ownable {
 
             internalIdCounter++;
             avatarTypeId[collection][i] = internalIdCounter;
+            avatarTypeExists[internalIdCounter] = true;
 
             numAvatarTypes[collection] += 1;
 
@@ -54,6 +57,7 @@ contract AvatarIdentifier is Ownable {
         for (uint256 i = indexStart; i < numRemove; i--) {
             delete collectionIdRanges[collection][i];
             delete avatarTypeId[collection][i];
+            delete avatarTypeExists[internalIdCounter];
 
             numAvatarTypes[collection] -= 1;
             emit AvatarRemoved(collection, avatarTypeId[collection][i]);
@@ -95,6 +99,11 @@ contract AvatarIdentifier is Ownable {
             }
         }
         revert("AvatarIdentifier: TokenId not found");
+    }
+
+    modifier isValidType(uint256 avatarType) {
+        require(avatarTypeExists[avatarType], "AvatarIdentifier: Avatar type does not exist");
+        _;
     }
 
 }

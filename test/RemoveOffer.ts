@@ -60,7 +60,7 @@ describe("Remove Offer", function () {
     // @ts-ignore
     await testAvatar.mint(owner.address, 0, 40);
 
-    await avatarSwap.addAvatarTypes(testAvatar.address, testCollectionData[0].indexes, testCollectionData[0].ranges, testCollectionData[0].avatarTypes);
+    await avatarSwap.addAvatarTypes(testAvatar.address, testCollectionData[0].ranges, testCollectionData[0].avatarTypes);
 
     await avatarSwap.createOffer(testAvatar.address, testOfferData.avoCatoId, "100000", 1, 0, 0);
     await avatarSwap.createOffer(testAvatar.address, testOfferData.avoCatoId, "150000", 1, 0, 1);

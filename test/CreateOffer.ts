@@ -60,7 +60,7 @@ describe("Create Offer", function () {
     // @ts-ignore
     await testAvatar.mint(owner.address, 0, 40);
 
-    await avatarSwap.addAvatarTypes(testAvatar.address, testCollectionData[0].indexes, testCollectionData[0].ranges, testCollectionData[0].avatarTypes);
+    await avatarSwap.addAvatarTypes(testAvatar.address, testCollectionData[0].ranges, testCollectionData[0].avatarTypes);
   });
 
   it("Should create an offer on Avo Cato", async function () {
@@ -153,5 +153,8 @@ describe("Create Offer", function () {
     expect(offer.price).to.equal("1500000000000000000");
     expect(offer.above).to.equal("6");
     expect(offer.below).to.equal("5");
+  });
+  it("should fail to create offer on invalid avatartype", async function () {
+    await expect(avatarSwap.createOffer(testAvatar.address, 100000, "1000000000000000000", 1, 0, 0)).to.be.revertedWith("AvatarIdentifier: Avatar type does not exist");
   });
 });
